@@ -28,20 +28,21 @@ Set up the project so every later milestone is mechanical.
 
 The whole data model, before any screens. Everything in `supabase/migrations/`.
 
-- [ ] `profiles` (id → auth.users, full_name, role enum: admin/supervisor/employee/builder, builder_id nullable, active)
+- [ ] `profiles` (id → auth.users, full_name, role enum: admin/supervisor/employee/crew_manager/builder, builder_id nullable, crew_id nullable, active)
 - [ ] `builders`, `construction_managers`, `suppliers`
 - [ ] `jobs` — house_number, street, generated `property_address`, subdivision, area, elevation, plan_name, builder_id, construction_manager_id, status enum, per-trade spec columns (brick/stone/stucco: sqft, color, mortar_color, drop_ft, start/end dates, crew), completion_percent, job_completed_date, notes
 - [ ] `job_supervisors` join table (a job can have multiple supervisors)
+- [ ] `crews` (name, trade, crew_manager profile); the per-trade crew columns on `jobs` reference `crews.id`, replacing the legacy crew select fields
 - [ ] Order tables: `sand_orders`, `mortar_orders`, `lintel_orders`, `arch_lintel_orders`, `rock_orders`, `stucco_material_orders`, `paint_orders` — each with job_id, supplier_id, order_number, ordered bool, ordered_date, requested_delivery_date, notes, created_by, plus type-specific columns (see glossary in `CLAUDE.md`)
 - [ ] `address_block_orders`, `job_photos`, `job_documents`, `info_requests`
 - [ ] `payroll_archive` tables — imported later, read-only, no UI
-- [ ] Lookup tables for select values (mortar colors, brick colors, crews) — **consolidate legacy typos** ("White"/"whtie"/"whiote" → one value)
+- [ ] Lookup tables for select values (mortar colors, brick colors) — **consolidate legacy typos** ("White"/"whtie"/"whiote" → one value)
 - [ ] RLS enabled on every table + policies per the role matrix in `CLAUDE.md`
 - [ ] Triggers: ordered-date stamp, completion→status+date, address block dates, stone start/end
 - [ ] Storage buckets: `plans`, `photos`, `order-forms` (private; signed URLs only)
 - [ ] Generated types committed to `lib/supabase/types.ts`
 
-**Done when:** a supervisor test user can only read/write what the role matrix allows, verified by SQL tests against seeded users.
+**Done when:** a supervisor test user and a crew manager test user can each only read/write what the role matrix allows (a crew manager reads only their crew's jobs and creates orders only on them), verified by SQL tests against seeded users.
 
 ---
 
@@ -49,7 +50,7 @@ The whole data model, before any screens. Everything in `supabase/migrations/`.
 
 Credible fake data so the UI can be built and demoed before migration.
 
-- [ ] Seed script in `supabase/seed/`: 5 builders with CMs, 8 suppliers, 9 users across roles, ~60 jobs spread across subdivisions (Provence, Sonterra, Cielo East, Lagos, The Grove Church), mixed trade combinations and statuses, orders of every type, photos, a few info requests
+- [ ] Seed script in `supabase/seed/`: 5 builders with CMs, 8 suppliers, 9 users across roles plus 3 crew managers with their crews, ~60 jobs spread across subdivisions (Provence, Sonterra, Cielo East, Lagos, The Grove Church), mixed trade combinations and statuses, orders of every type, photos, a few info requests
 - [ ] Addresses, plan names, and colors match Central Texas conventions (Country Hill brick, White 4,6,8 stone, Type S — Gray mortar)
 - [ ] Idempotent: re-runnable without duplicating
 
@@ -61,10 +62,10 @@ Credible fake data so the UI can be built and demoed before migration.
 
 - [ ] Supabase Auth: email/password sign-in, password reset, invite flow
 - [ ] Middleware guarding `(app)` and `(portal)` route groups; role-aware redirects
-- [ ] App shell: charcoal sidebar, nav, user block with role label (match mockup)
+- [ ] App shell: charcoal sidebar, nav, user block with role label (match `design/approved-mockup.html`)
 - [ ] `/profile` and `/team`
 
-**Done when:** each of the four roles lands somewhere correct and cannot reach another role's routes.
+**Done when:** each of the five roles lands somewhere correct and cannot reach another role's routes.
 
 ---
 
@@ -87,9 +88,10 @@ Credible fake data so the UI can be built and demoed before migration.
 - [ ] Add/edit dialogs per order type with the right fields; lintel quick-add buttons for 3x4 (¼") and 4x4 (⅜")
 - [ ] Stucco material order form with its ~20 line items, grouped sensibly
 - [ ] Supplier assignment and requested delivery dates
+- [ ] Crew manager view: phone-friendly list of their crew's jobs with a Request materials action for each order type; their orders land in the review queue like any other. Match the Crew Manager screen in `design/approved-mockup.html`
 - [ ] `/orders` cross-job view for the office: everything pending, by status and supplier
 
-**Done when:** every order type from the legacy system can be created and edited, and `ordered_date` stamps itself.
+**Done when:** every order type from the legacy system can be created and edited, `ordered_date` stamps itself, and a crew manager can order supplies for their crew's jobs and no others.
 
 ---
 
@@ -118,7 +120,7 @@ This replaces Documint and the email-chain workflow.
 
 ## M8 — Public website
 
-- [ ] `/` — the approved mockup design: hero, trades section with material photography, trust band, stats, process, contact
+- [ ] `/` — the approved mockup design in `design/approved-mockup.html`: hero, trades section with material photography, trust band, stats, process, contact
 - [ ] `/request-info` → `info_requests` + notification email; spam protection
 - [ ] SEO basics: metadata, OG tags, sitemap, favicon from the logo
 - [ ] Lighthouse: performance and accessibility ≥ 90 on mobile

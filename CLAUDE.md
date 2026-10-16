@@ -41,6 +41,8 @@ lib/
 supabase/
   migrations/           # SQL migrations (source of truth for schema)
   seed/                 # seed + fake-data scripts
+design/
+  approved-mockup.html  # client-approved mockup; the visual source of truth
 scripts/
   migration/            # one-time Airtable → Postgres import (Phase 5)
 ```
@@ -59,6 +61,7 @@ Use these terms in code and UI; they're what the client says out loud.
 - **Order form** — branded PDF sent to the supplier. Three layouts: Masonry, Paint, Stucco Supply.
 - **Review team** — office staff (Harlee, Cindy, Jackson) who review generated order forms before they go out.
 - **Builder** — homebuilder client (Ashton Woods, Pulte, Tri Pointe, Masonwood, Lott Brothers). Each has **construction managers** (CMs) who are the portal users.
+- **Crew manager** — the lead of a Leander 3T field crew (brick, stone or stucco). Logs in to see the jobs assigned to their crew and to order supplies for those jobs.
 - **Address block** — the stone/brick address marker; has its own order and delivery dates.
 
 ---
@@ -70,6 +73,7 @@ Use these terms in code and UI; they're what the client says out loud.
 | `admin` (Administration) | Everything |
 | `supervisor` | Reads all jobs; writes jobs they supervise; creates/edits orders on those jobs |
 | `employee` | Reads assigned jobs; adds photos and notes |
+| `crew_manager` | Reads jobs assigned to their crew; creates and edits material orders on those jobs (orders go through the same review queue). Never sees costs, payroll archive, other crews' jobs, or builder contact details beyond the job. |
 | `builder` (portal) | Reads **only** their builder's jobs — status, schedule, specs, photos. Can submit job requests. Never sees costs, payroll, suppliers, or other builders. |
 
 Enforce all of this with **row-level security policies**, not UI filtering. The legacy app filtered lists in the front end ("jobs managed by you"); that becomes a policy here. Every new table gets RLS enabled in the same migration that creates it.
@@ -78,7 +82,7 @@ Enforce all of this with **row-level security policies**, not UI filtering. The 
 
 ## Design system ("Coursework")
 
-Derived from the Leander 3T brand and approved by the client in the mockup. Tokens live in `app/globals.css` / Tailwind config.
+Derived from the Leander 3T brand and approved by the client in the mockup at `design/approved-mockup.html` (seven screens: public site, sign in, dashboard, job list, job detail, builder portal, crew manager). Open it in a browser and match it. Tokens live in `app/globals.css` / Tailwind config.
 
 ```
 charcoal  #211B17   limestone #F6F1E8   paper    #FFFFFF
@@ -91,7 +95,7 @@ gradient  linear-gradient(135deg,#F9B234,#F49F0A 38%,#E4590F)
 - **Type:** Barlow Condensed (uppercase headings, tight leading), Barlow (body), IBM Plex Mono (labels, IDs, dates, measurements).
 - **Signature elements:** brick-coursing texture on dark sections; a thin `chalk` rule as a section accent (the mason's snapped line); amber→flame gradient reserved for primary actions.
 - Measurements, order numbers, dates, and square footages render in mono — this reads as a trade tool, not a generic SaaS dashboard.
-- Do not introduce new colors or a second UI library. Match the approved mockup.
+- Do not introduce new colors or a second UI library. Match `design/approved-mockup.html`.
 
 ---
 
