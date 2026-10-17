@@ -23,7 +23,8 @@ export type OrderRow = {
   orderedDate: string | null;
   requestedDate: string | null;
   createdBy: string | null;
-  createdByName: string | null;
+  /** The crew manager who asked for this order; null for office-entered orders. */
+  requestedBy: string | null;
   supplierId: string | null;
   supplierName: string | null;
   job?: {
@@ -52,7 +53,7 @@ function selectFor(type: OrderTypeKey, withJob: boolean) {
   return [
     "*",
     "suppliers(name)",
-    `creator:profiles!${t}_created_by_fkey(full_name)`,
+    `creator:profiles!${t}_created_by_fkey(full_name, role)`,
     type === "mortar" || type === "stucco_material"
       ? "mortar_colors(name)"
       : null,
@@ -65,6 +66,11 @@ function selectFor(type: OrderTypeKey, withJob: boolean) {
   ]
     .filter(Boolean)
     .join(", ");
+}
+
+function requesterName(creator: unknown) {
+  const c = creator as { full_name: string | null; role: string } | null;
+  return c?.role === "crew_manager" ? c.full_name : null;
 }
 
 function toRow(type: OrderTypeKey, o: Row): OrderRow {
@@ -102,8 +108,8 @@ function toRow(type: OrderTypeKey, o: Row): OrderRow {
     orderedDate: (o.ordered_date as string | null) ?? null,
     requestedDate: (o.requested_delivery_date as string | null) ?? null,
     createdBy: (o.created_by as string | null) ?? null,
-    createdByName:
-      (o.creator as { full_name: string | null } | null)?.full_name ?? null,
+    // "Requested by" names crew managers only; office drafts need no credit line.
+    requestedBy: requesterName(o.creator),
     supplierId: (o.supplier_id as string | null) ?? null,
     supplierName,
     job: job && {

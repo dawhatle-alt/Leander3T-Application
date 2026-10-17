@@ -104,16 +104,20 @@ Credible fake data so the UI can be built and demoed before migration.
 
 ---
 
-## M6 — Order form PDFs and review queue
+## M6 — Order form PDFs and review queue ✅
 
 This replaces Documint and the email-chain workflow.
 
-- [ ] PDF templates in `lib/pdf/`: Masonry, Paint, Stucco Supply — match the existing Documint layouts closely enough that suppliers notice no change (logo, company header, 127 Woodland Trail, property/job header block, line items)
-- [ ] Route handler renders the PDF from job + order data, writes to the `order-forms` bucket, links it to the order, flips `ordered`, and notifies the review team via Resend
-- [ ] Review queue UI: generated forms pending review, with preview, approve/send, and regenerate
-- [ ] Dashboard "Needs Attention" panel fed by this queue
+- [x] PDF templates in `lib/pdf/order-form.tsx`: Masonry, Paint, Stucco Supply — copied from the legacy Documint forms (logo, company header, 127 Woodland Trail, property/job header block, line items), Documint badge removed
+- [x] One server action (`lib/order-forms/actions.ts`) renders the PDF from job + order data, files it in the `order-forms` bucket, records it in `order_forms`, flips `ordered` (the database stamps the date) and emails the review team through Resend
+  - Masonry: one form per job covering every unplaced sand, mortar, lintel, arch lintel and rock order (as in the legacy app)
+  - Stucco Supply and Paint: one form per order, from the order dialog
+  - Review team = profiles with `reviews_order_forms` (Harlee, Cindy, Jackson in the demo data)
+  - Email is skipped, with a notice, until `RESEND_API_KEY` and `ORDER_FORMS_FROM` are set
+- [x] Review queue `/orders/forms`: pending forms with PDF preview, approve, and regenerate (new version, back to review). Approving records the review; the team still sends the PDF to suppliers themselves
+- [x] Dashboard "Needs Attention" panel fed by this queue
 
-**Done when:** one click on a job produces a filed, branded PDF and an email to the review team — no third-party service in the path.
+**Done when:** one click on a job produces a filed, branded PDF and an email to the review team — no third-party service in the path. *(Email goes live once Resend has a verified domain.)*
 
 ---
 

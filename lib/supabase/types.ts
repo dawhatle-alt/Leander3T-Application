@@ -954,6 +954,82 @@ export type Database = {
           },
         ]
       }
+      order_forms: {
+        Row: {
+          created_at: string
+          form_number: number
+          generated_at: string
+          generated_by: string | null
+          id: string
+          job_id: string
+          layout: Database["public"]["Enums"]["order_form_layout"]
+          notified_at: string | null
+          orders: Json
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: Database["public"]["Enums"]["order_form_status"]
+          storage_path: string
+          updated_at: string
+          version: number
+        }
+        Insert: {
+          created_at?: string
+          form_number?: number
+          generated_at?: string
+          generated_by?: string | null
+          id?: string
+          job_id: string
+          layout: Database["public"]["Enums"]["order_form_layout"]
+          notified_at?: string | null
+          orders?: Json
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: Database["public"]["Enums"]["order_form_status"]
+          storage_path: string
+          updated_at?: string
+          version?: number
+        }
+        Update: {
+          created_at?: string
+          form_number?: number
+          generated_at?: string
+          generated_by?: string | null
+          id?: string
+          job_id?: string
+          layout?: Database["public"]["Enums"]["order_form_layout"]
+          notified_at?: string | null
+          orders?: Json
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: Database["public"]["Enums"]["order_form_status"]
+          storage_path?: string
+          updated_at?: string
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "order_forms_generated_by_fkey"
+            columns: ["generated_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "order_forms_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "jobs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "order_forms_reviewed_by_fkey"
+            columns: ["reviewed_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       paint_orders: {
         Row: {
           airtable_id: string | null
@@ -1183,6 +1259,7 @@ export type Database = {
           full_name: string | null
           id: string
           phone: string | null
+          reviews_order_forms: boolean
           role: Database["public"]["Enums"]["app_role"]
           updated_at: string
         }
@@ -1196,6 +1273,7 @@ export type Database = {
           full_name?: string | null
           id: string
           phone?: string | null
+          reviews_order_forms?: boolean
           role?: Database["public"]["Enums"]["app_role"]
           updated_at?: string
         }
@@ -1209,6 +1287,7 @@ export type Database = {
           full_name?: string | null
           id?: string
           phone?: string | null
+          reviews_order_forms?: boolean
           role?: Database["public"]["Enums"]["app_role"]
           updated_at?: string
         }
@@ -1622,6 +1701,8 @@ export type Database = {
         | "other"
       job_status: "new" | "in_progress" | "completed"
       lot_swing: "right" | "left" | "other"
+      order_form_layout: "masonry" | "stucco" | "paint"
+      order_form_status: "pending_review" | "approved"
       order_type:
         | "sand"
         | "mortar"
@@ -1772,6 +1853,8 @@ export const Constants = {
       ],
       job_status: ["new", "in_progress", "completed"],
       lot_swing: ["right", "left", "other"],
+      order_form_layout: ["masonry", "stucco", "paint"],
+      order_form_status: ["pending_review", "approved"],
       order_type: [
         "sand",
         "mortar",

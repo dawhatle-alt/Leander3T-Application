@@ -21,6 +21,10 @@ import {
   stamp,
 } from "@/lib/jobs/format";
 import { OrderBoard } from "@/components/orders/order-board";
+import { FormList } from "@/components/order-forms/form-list";
+import { GenerateFormButton } from "@/components/order-forms/generate-button";
+import { LAYOUT_TYPES } from "@/lib/order-forms/build";
+import { loadForms } from "@/lib/order-forms/data";
 import { loadOrderBoard } from "@/lib/orders/board";
 import { requireProfile } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
@@ -67,29 +71,31 @@ export default async function JobPage({
     .maybeSingle();
   if (!job) notFound();
 
-  const [editable, board, photosRes, docsRes, notesRes] = await Promise.all([
-    canEditJob(me, id),
-    loadOrderBoard(me, job),
-    supabase
-      .from("job_photos")
-      .select(
-        "id, storage_path, caption, trade, taken_on, created_at, uploaded_by",
-      )
-      .eq("job_id", id)
-      .order("taken_on", { ascending: false, nullsFirst: false })
-      .order("created_at", { ascending: false }),
-    supabase
-      .from("job_documents")
-      .select("id, kind, storage_path, file_name, created_at")
-      .eq("job_id", id)
-      .neq("kind", "order_form")
-      .order("created_at", { ascending: false }),
-    supabase
-      .from("job_notes")
-      .select("id, body, created_at, author_id, profiles(full_name)")
-      .eq("job_id", id)
-      .order("created_at", { ascending: false }),
-  ]);
+  const [editable, board, forms, photosRes, docsRes, notesRes] =
+    await Promise.all([
+      canEditJob(me, id),
+      loadOrderBoard(me, job),
+      loadForms({ jobId: id }),
+      supabase
+        .from("job_photos")
+        .select(
+          "id, storage_path, caption, trade, taken_on, created_at, uploaded_by",
+        )
+        .eq("job_id", id)
+        .order("taken_on", { ascending: false, nullsFirst: false })
+        .order("created_at", { ascending: false }),
+      supabase
+        .from("job_documents")
+        .select("id, kind, storage_path, file_name, created_at")
+        .eq("job_id", id)
+        .neq("kind", "order_form")
+        .order("created_at", { ascending: false }),
+      supabase
+        .from("job_notes")
+        .select("id, body, created_at, author_id, profiles(full_name)")
+        .eq("job_id", id)
+        .order("created_at", { ascending: false }),
+    ]);
 
   const photos = photosRes.data ?? [];
   const docs = docsRes.data ?? [];
@@ -127,6 +133,9 @@ export default async function JobPage({
     c: { name: string; manager: { full_name: string | null } | null } | null,
   ) => (c ? [c.name, c.manager?.full_name].filter(Boolean).join(" — ") : "—");
   const { counts, ...boardProps } = board;
+  const unplacedMasonry = board.orders.filter(
+    (o) => !o.ordered && LAYOUT_TYPES.masonry.includes(o.type),
+  ).length;
 
   return (
     <>
@@ -372,9 +381,38 @@ export default async function JobPage({
           {counts.total - counts.placed} draft
         </span>
       </h2>
-      <div className="mb-[34px]">
+      <div className="mb-5">
         <OrderBoard {...boardProps} />
       </div>
+      <section className="mb-[34px] rounded-md border border-mortar bg-paper shadow-card">
+        <header className="flex flex-wrap items-center gap-3 border-b border-mortar px-[22px] py-3.5">
+          <h3 className="font-display text-[21px] font-bold uppercase">
+            Order Forms
+          </h3>
+          <span className="count-label">
+            {forms.length} {forms.length === 1 ? "form" : "forms"}
+          </span>
+          {editable && unplacedMasonry > 0 && (
+            <span className="ml-auto">
+              <GenerateFormButton
+                jobId={id}
+                layout="masonry"
+                label={`Create Masonry Form (${unplacedMasonry} ${unplacedMasonry === 1 ? "order" : "orders"})`}
+              />
+            </span>
+          )}
+        </header>
+        <FormList
+          forms={forms}
+          canReview={editable}
+          showJob={false}
+          empty={
+            editable
+              ? "No order forms yet. Masonry forms cover every unplaced sand, mortar, lintel and rock order; stucco and paint forms are created from the order itself."
+              : "No order forms yet."
+          }
+        />
+      </section>
 
       <h2 className="section-title">
         Job Photos <span className="chalk-line" aria-hidden="true" />
