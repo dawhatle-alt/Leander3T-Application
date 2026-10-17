@@ -1,12 +1,10 @@
 import type { Metadata } from "next";
 import { ShieldCheck } from "lucide-react";
-import {
-  ComingSoon,
-  PageHead,
-  Panel,
-  Scope,
-} from "@/components/shell/page-bits";
+import { PageHead, Panel, Scope } from "@/components/shell/page-bits";
+import Link from "next/link";
 import { requireProfile } from "@/lib/auth/session";
+import { loadOrders } from "@/lib/orders/data";
+import { ORDER_TYPES } from "@/lib/orders/types";
 import { createClient } from "@/lib/supabase/server";
 
 export const metadata: Metadata = { title: "My Crew — Leander 3T" };
@@ -48,6 +46,9 @@ export default async function CrewHome() {
   ]);
 
   const crewNames = crews?.map((c) => c.name).join(" & ") || "your crew";
+  const mine = (await loadOrders({ status: "pending" })).filter(
+    (o) => o.createdBy === profile.id,
+  );
 
   return (
     <>
@@ -69,30 +70,32 @@ export default async function CrewHome() {
               const start =
                 j.brick_start_date ?? j.stone_start_date ?? j.stucco_start_date;
               return (
-                <li
-                  key={j.id}
-                  className="flex items-start justify-between gap-4 px-6 py-4"
-                >
-                  <div className="min-w-0">
-                    <div className="font-bold">{j.property_address}</div>
-                    <div className="mt-0.5 font-mono text-[11.5px] tracking-[0.08em] text-ink-muted uppercase">
-                      {[
-                        j.builders?.name,
-                        j.subdivision,
-                        [j.plan_name, j.elevation].filter(Boolean).join(" "),
-                      ]
-                        .filter(Boolean)
-                        .join(" · ")}
-                    </div>
-                    <div className="mt-1 font-mono text-[12px] text-ink-muted">
-                      START {fmt(start)}
-                    </div>
-                  </div>
-                  <span
-                    className={`inline-flex flex-none items-center gap-[7px] rounded-full px-3 py-[5px] text-[12.5px] font-bold before:size-[7px] before:rounded-full before:bg-current ${s?.className ?? ""}`}
+                <li key={j.id}>
+                  <Link
+                    href={`/crew/jobs/${j.id}`}
+                    className="flex items-start justify-between gap-4 px-6 py-4 transition-colors hover:bg-[#fdfaf3]"
                   >
-                    {s?.label ?? j.status}
-                  </span>
+                    <div className="min-w-0">
+                      <div className="font-bold">{j.property_address}</div>
+                      <div className="mt-0.5 font-mono text-[11.5px] tracking-[0.08em] text-ink-muted uppercase">
+                        {[
+                          j.builders?.name,
+                          j.subdivision,
+                          [j.plan_name, j.elevation].filter(Boolean).join(" "),
+                        ]
+                          .filter(Boolean)
+                          .join(" · ")}
+                      </div>
+                      <div className="mt-1 font-mono text-[12px] text-ink-muted">
+                        START {fmt(start)}
+                      </div>
+                    </div>
+                    <span
+                      className={`inline-flex flex-none items-center gap-[7px] rounded-full px-3 py-[5px] text-[12.5px] font-bold before:size-[7px] before:rounded-full before:bg-current ${s?.className ?? ""}`}
+                    >
+                      {s?.label ?? j.status}
+                    </span>
+                  </Link>
                 </li>
               );
             })}
@@ -104,10 +107,34 @@ export default async function CrewHome() {
         )}
       </Panel>
 
-      <ComingSoon
-        milestone="Request materials · M5"
-        what="Order sand, mortar, lintels, rock and stucco supply for these jobs from your phone. Requests go to the office for review."
-      />
+      <Panel title="Waiting on the Office">
+        {mine.length ? (
+          <ul className="divide-y divide-mortar">
+            {mine.map((o) => (
+              <li key={o.id}>
+                <Link
+                  href={`/crew/jobs/${o.job?.id}`}
+                  className="flex items-start justify-between gap-4 px-6 py-3.5 transition-colors hover:bg-[#fdfaf3]"
+                >
+                  <div className="min-w-0">
+                    <div className="font-semibold">
+                      {ORDER_TYPES[o.type].label}: {o.main}
+                    </div>
+                    <div className="mt-0.5 font-mono text-[11.5px] tracking-[0.08em] text-ink-muted uppercase">
+                      {o.job?.address}
+                    </div>
+                  </div>
+                  <span className="badge b-new flex-none">Draft</span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p className="px-6 py-6 text-ink-muted">
+            No requests waiting. Open a job above to request materials.
+          </p>
+        )}
+      </Panel>
     </>
   );
 }

@@ -20,7 +20,8 @@ import {
   shortDate,
   stamp,
 } from "@/lib/jobs/format";
-import { loadJobOrders } from "@/lib/jobs/orders";
+import { OrderBoard } from "@/components/orders/order-board";
+import { loadOrderBoard } from "@/lib/orders/board";
 import { requireProfile } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
 import { cn } from "@/lib/utils";
@@ -66,9 +67,9 @@ export default async function JobPage({
     .maybeSingle();
   if (!job) notFound();
 
-  const [editable, orders, photosRes, docsRes, notesRes] = await Promise.all([
+  const [editable, board, photosRes, docsRes, notesRes] = await Promise.all([
     canEditJob(me, id),
-    loadJobOrders(supabase, id),
+    loadOrderBoard(me, job),
     supabase
       .from("job_photos")
       .select(
@@ -125,7 +126,7 @@ export default async function JobPage({
   const crewLine = (
     c: { name: string; manager: { full_name: string | null } | null } | null,
   ) => (c ? [c.name, c.manager?.full_name].filter(Boolean).join(" — ") : "—");
-  const placed = orders.filter((o) => o.ordered).length;
+  const { counts, ...boardProps } = board;
 
   return (
     <>
@@ -367,57 +368,13 @@ export default async function JobPage({
       <h2 className="section-title">
         Material Orders <span className="chalk-line" aria-hidden="true" />
         <span className="count-label">
-          {orders.length} orders · {placed} placed · {orders.length - placed}{" "}
-          draft
+          {counts.total} orders · {counts.placed} placed ·{" "}
+          {counts.total - counts.placed} draft
         </span>
       </h2>
-      {orders.length ? (
-        <div className="mb-[34px] grid gap-5 lg:grid-cols-2">
-          {groupBy(orders, (o) => o.type).map(([type, rows]) => (
-            <section
-              key={type}
-              className="rounded-md border border-mortar bg-paper shadow-card"
-            >
-              <header className="flex items-center gap-3 border-b border-mortar px-[22px] py-4">
-                <h3 className="font-display text-[21px] font-bold uppercase">
-                  {type}
-                </h3>
-                <span className="count-label">
-                  {rows.length} {rows.length === 1 ? "order" : "orders"}
-                </span>
-              </header>
-              <ul>
-                {rows.map((o) => (
-                  <li
-                    key={o.id}
-                    className="flex items-center gap-3.5 border-b border-limestone px-[22px] py-[13px] text-[14px] last:border-b-0"
-                  >
-                    <span className="w-[52px] flex-none font-mono text-xs text-ink-muted">
-                      {o.number ? `#${o.number}` : "—"}
-                    </span>
-                    <div className="min-w-0">
-                      <div className="font-semibold">{o.main}</div>
-                      <div className="text-[12.5px] text-ink-muted">
-                        {o.sub}
-                      </div>
-                    </div>
-                    <span
-                      className={cn(
-                        "badge ml-auto",
-                        o.ordered ? "b-done" : "b-new",
-                      )}
-                    >
-                      {o.ordered ? "Ordered" : "Draft"}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            </section>
-          ))}
-        </div>
-      ) : (
-        <p className="mb-[34px] text-ink-muted">No material orders yet.</p>
-      )}
+      <div className="mb-[34px]">
+        <OrderBoard {...boardProps} />
+      </div>
 
       <h2 className="section-title">
         Job Photos <span className="chalk-line" aria-hidden="true" />
@@ -590,10 +547,4 @@ function KV({
       <dd className={cn(mono && "font-mono text-[13px]")}>{v || "—"}</dd>
     </div>
   );
-}
-
-function groupBy<T>(rows: T[], key: (r: T) => string): [string, T[]][] {
-  const m = new Map<string, T[]>();
-  for (const r of rows) m.set(key(r), [...(m.get(key(r)) ?? []), r]);
-  return [...m.entries()];
 }
