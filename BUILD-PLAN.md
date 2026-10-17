@@ -68,9 +68,10 @@ Credible fake data so the UI can be built and demoed before migration.
 - [x] Middleware guarding every signed-in area; role-aware redirects (team → `/dashboard`, crew manager → `/crew`, builder → `/portal`); switched-off accounts are signed out
 - [x] App shell: charcoal sidebar, nav, user block with role label (match `design/approved-mockup.html`); dark top bar for crew managers and the builder portal
 - [x] `/profile` (name and phone; the database lets people change only those on their own row — migration `profile_self_edit`) and `/team`
-- [ ] **Needs Darrell (Supabase dashboard):** Site URL + redirect URLs, paste the four email templates, and custom SMTP through Resend so emails reach people outside the Supabase team (see README → Sign-in setup)
+- [x] Supabase dashboard: Site URL, redirect URLs and the four branded email templates (2026-10-17)
+- [ ] Custom SMTP through Resend so emails reach people outside the Supabase team — needs a verified sending domain (see README → Sign-in setup)
 
-**Done when:** each of the five roles lands somewhere correct and cannot reach another role's routes. Route rules checked for every role and area (70/70); signed-out redirects checked on a running build. Final check is a real sign-in per role on the preview once email is set up.
+**Done when:** each of the five roles lands somewhere correct and cannot reach another role's routes. Route rules checked for every role and area (70/70); signed-out redirects checked on a running build. **Met 2026-10-17** for Administration: emailed sign-in link on production lands on the dashboard. Other roles to be checked once Resend email is on.
 
 ---
 
