@@ -1,0 +1,22 @@
+<!doctype html>
+<html>
+  <body style="margin:0;background:#f6f1e8;font-family:Barlow,'Helvetica Neue',Arial,sans-serif;color:#241e19">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="padding:32px 16px">
+      <tr><td align="center">
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:480px;background:#ffffff;border:1px solid #e6dccb;border-radius:10px">
+          <tr><td style="background:#211b17;border-radius:10px 10px 0 0;padding:18px 28px;border-bottom:3px solid #e4590f">
+            <span style="font-family:'Barlow Condensed',Impact,sans-serif;font-size:22px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:#f6f1e8">Leander 3T</span>
+            <span style="display:block;font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.2em;color:#b0a494">JOB SYSTEM</span>
+          </td></tr>
+          <tr><td style="padding:28px">
+            <h1 style="margin:0 0 10px;font-family:'Barlow Condensed',Impact,sans-serif;font-size:28px;text-transform:uppercase">Confirm your email</h1>
+            <p style="margin:0 0 24px;font-size:15px;line-height:1.55;color:#75685c">Tap the button to confirm your email for the Leander 3T job system.</p>
+            <a href="{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=email"
+               style="display:inline-block;background:#e4590f;background-image:linear-gradient(135deg,#f9b234,#f49f0a 38%,#e4590f);color:#20130a;font-weight:700;font-size:15px;text-decoration:none;padding:13px 26px;border-radius:6px">Confirm Email</a>
+            <p style="margin:24px 0 0;font-size:13px;color:#75685c">The link works once and expires in an hour. If you didn't ask for this, you can ignore this email.</p>
+          </td></tr>
+        </table>
+      </td></tr>
+    </table>
+  </body>
+</html>

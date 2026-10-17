@@ -7,3 +7,4 @@ supabase/migrations/
 *.md
 .github/
 supabase/config.toml
+supabase/templates/

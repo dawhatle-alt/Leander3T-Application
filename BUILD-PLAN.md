@@ -17,7 +17,7 @@ Set up the project so every later milestone is mechanical.
 - [x] Fonts wired (Barlow Condensed, Barlow, IBM Plex Mono) via `next/font`
 - [x] Supabase project created (`Leander3T`, `mbpinvgomfjmbpwyqaiv`); local dev via Supabase CLI (`supabase/config.toml`); `.env.example` (copy to `.env.local`)
 - [x] Supabase server/browser client helpers in `lib/supabase/`
-- [ ] Vercel project connected to the GitHub repo; preview deploys on PRs — **needs Darrell**: import the repo in Vercel and add the env vars from `.env.example`
+- [x] Vercel project connected to the GitHub repo; preview deploys on PRs (production live at leander3-t-application.vercel.app, 2026-10-16)
 - [x] `npm run typecheck`, `lint`, `format:check`, `build` all run in CI (`.github/workflows/ci.yml`)
 
 **Done when:** a placeholder page deploys to a Vercel preview URL with brand fonts and colors applied.
@@ -57,18 +57,20 @@ Credible fake data so the UI can be built and demoed before migration.
 - [x] Idempotent: re-runnable without duplicating (fixed ids; clears previous demo rows first)
 - [x] Removable: every demo row is tagged (`demo` column, or `app_metadata.demo` on sign-ins); `npm run seed:clear` removes them before the Airtable import (M10)
 
-**Done when:** `npm run seed` produces a database that looks like a real month at Leander 3T.
+**Done when:** `npm run seed` produces a database that looks like a real month at Leander 3T. **Met 2026-10-16:** loaded into Leander3T. Spot checks: crew manager Ramon sees only his crew's 18 jobs (Provence, Lagos); builder Sam sees only Ashton Woods' 12 homes and no orders.
 
 ---
 
 ## M3 — Auth and app shell
 
-- [ ] Supabase Auth: email/password sign-in, password reset, invite flow
-- [ ] Middleware guarding `(app)` and `(portal)` route groups; role-aware redirects
-- [ ] App shell: charcoal sidebar, nav, user block with role label (match `design/approved-mockup.html`)
-- [ ] `/profile` and `/team`
+- [x] Supabase Auth: email + password **and** emailed sign-in links (decision 2026-10-16), password reset, invite flow (admin invites from `/team`; the link signs them in and asks for a password)
+- [x] All emailed links land on `/auth/confirm` (token_hash). Branded templates in `supabase/templates/`; same HTML goes into the hosted project's email settings
+- [x] Middleware guarding every signed-in area; role-aware redirects (team → `/dashboard`, crew manager → `/crew`, builder → `/portal`); switched-off accounts are signed out
+- [x] App shell: charcoal sidebar, nav, user block with role label (match `design/approved-mockup.html`); dark top bar for crew managers and the builder portal
+- [x] `/profile` (name and phone; the database lets people change only those on their own row — migration `profile_self_edit`) and `/team`
+- [ ] **Needs Darrell (Supabase dashboard):** Site URL + redirect URLs, paste the four email templates, and custom SMTP through Resend so emails reach people outside the Supabase team (see README → Sign-in setup)
 
-**Done when:** each of the five roles lands somewhere correct and cannot reach another role's routes.
+**Done when:** each of the five roles lands somewhere correct and cannot reach another role's routes. Route rules checked for every role and area (70/70); signed-out redirects checked on a running build. Final check is a real sign-in per role on the preview once email is set up.
 
 ---
 
