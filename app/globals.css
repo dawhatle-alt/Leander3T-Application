@@ -160,3 +160,207 @@
   align-items: center;
   gap: 14px;
 }
+
+/*
+ * Screen components from design/approved-mockup.html (job list, job detail).
+ * Class names match the mockup so the two can be compared side by side.
+ */
+@layer components {
+  .shadow-card {
+    box-shadow:
+      0 1px 2px rgba(33, 27, 23, 0.06),
+      0 4px 14px rgba(33, 27, 23, 0.07);
+  }
+  .fchip {
+    font-weight: 600;
+    font-size: 13.5px;
+    padding: 9px 16px;
+    border-radius: 999px;
+    border: 1.5px solid var(--mortar-2);
+    background: var(--paper);
+    color: var(--ink-muted);
+    transition: all 0.18s;
+    white-space: nowrap;
+  }
+  .fchip:hover {
+    border-color: var(--flame);
+    color: var(--flame);
+  }
+  .fchip[aria-current="true"] {
+    background: var(--charcoal);
+    border-color: var(--charcoal);
+    color: var(--limestone);
+  }
+  .data-table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 840px;
+  }
+  .data-table th {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink-muted);
+    text-align: left;
+    padding: 15px 20px;
+    border-bottom: 1px solid var(--mortar);
+    background: #fbf8f1;
+    font-weight: 500;
+  }
+  .data-table td {
+    padding: 15px 20px;
+    border-bottom: 1px solid var(--limestone);
+    font-size: 14.5px;
+    vertical-align: middle;
+  }
+  .data-table tbody tr {
+    transition: background 0.15s;
+  }
+  .data-table tbody tr:hover {
+    background: #fdfaf3;
+  }
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 12.5px;
+    font-weight: 700;
+    padding: 5px 12px;
+    border-radius: 999px;
+    white-space: nowrap;
+  }
+  .badge::before {
+    content: "";
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: currentColor;
+  }
+  .b-new {
+    background: #fdeecb;
+    color: #8a5300;
+  }
+  .b-prog {
+    background: #fbe0cf;
+    color: #a33d05;
+  }
+  .b-done {
+    background: #dcebe0;
+    color: #245638;
+  }
+  .builder-tag {
+    display: inline-block;
+    background: var(--limestone);
+    border: 1px solid var(--mortar);
+    border-radius: 6px;
+    padding: 4px 10px;
+    font-size: 13px;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+  .pg {
+    min-width: 34px;
+    height: 34px;
+    padding: 0 8px;
+    border-radius: 8px;
+    border: 1.5px solid var(--mortar-2);
+    display: grid;
+    place-items: center;
+    font-weight: 700;
+    font-size: 13px;
+    transition: all 0.15s;
+  }
+  .pg:hover {
+    border-color: var(--flame);
+    color: var(--flame);
+  }
+  .pg[aria-current="page"] {
+    background: var(--charcoal);
+    border-color: var(--charcoal);
+    color: #fff;
+  }
+  .jh-chip {
+    font-size: 12.5px;
+    font-weight: 700;
+    padding: 6px 13px;
+    border-radius: 999px;
+    background: rgba(246, 241, 232, 0.1);
+    border: 1px solid rgba(246, 241, 232, 0.16);
+  }
+  .jh-chip.hot {
+    background: var(--grad-fire);
+    color: #20130a;
+    border: none;
+  }
+  .sp-brick {
+    background: linear-gradient(120deg, #8f4022, #6f3019);
+  }
+  .sp-stone {
+    background: linear-gradient(120deg, #8a7d68, #6d6252);
+  }
+  .sp-stucco {
+    background: linear-gradient(120deg, #b39b71, #96805a);
+  }
+  .kv {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 8px 0;
+    border-bottom: 1px dashed var(--mortar);
+    font-size: 14px;
+  }
+  .kv:last-child {
+    border-bottom: none;
+  }
+  .kv dt {
+    color: var(--ink-muted);
+    flex: none;
+  }
+  .kv dd {
+    font-weight: 600;
+    text-align: right;
+  }
+  .section-title {
+    font-family: var(--font-display);
+    font-size: 28px;
+    text-transform: uppercase;
+    font-weight: 700;
+    margin: 6px 0 18px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    flex-wrap: wrap;
+  }
+  .count-label {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--ink-muted);
+    font-weight: 400;
+    text-transform: uppercase;
+  }
+  .input {
+    width: 100%;
+    padding: 11px 13px;
+    border: 1.5px solid var(--mortar-2);
+    border-radius: 6px;
+    font-size: 15px;
+    background: var(--limestone);
+    color: var(--ink);
+    transition: border-color 0.2s;
+  }
+  .input:focus {
+    outline: none;
+    border-color: var(--flame);
+    background: #fff;
+  }
+  .input[aria-invalid="true"] {
+    border-color: var(--chalk);
+  }
+  .label {
+    display: block;
+    font-weight: 600;
+    font-size: 13.5px;
+    margin-bottom: 7px;
+  }
+}
