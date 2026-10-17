@@ -22,7 +22,7 @@ export async function loadJobFormOptions(
     supabase.from("builders").select("id, name, active").order("name"),
     supabase
       .from("construction_managers")
-      .select("id, name, builder_id")
+      .select("id, name, builder_id, active")
       .order("name"),
     supabase
       .from("brick_colors")
@@ -71,6 +71,7 @@ export async function loadJobFormOptions(
       value: m.id,
       label: m.name,
       builderId: m.builder_id,
+      active: m.active,
     })),
     brickColors: (brick.data ?? []).map((c) => ({
       value: c.id,

@@ -24,6 +24,9 @@ const BOARD_LIMIT = 60;
 
 type SP = Record<string, string | undefined>;
 
+const JOB_COLS =
+  "id, property_address, plan_name, elevation, subdivision, status, completion_percent, brick_sqft, stone_sqft, stucco_sqft, builders(name)";
+
 // Keep only what's safe inside a PostgREST or() filter.
 function cleanQuery(q: string | undefined) {
   return (q ?? "")
@@ -53,6 +56,7 @@ export default async function JobsPage({
     ? (sp.status as JobStatus)
     : undefined;
   const view = sp.view === "board" ? "board" : "list";
+  const mine = sp.mine === "1";
   const page = Math.max(1, Number.parseInt(sp.page ?? "1", 10) || 1);
 
   const supabase = await createClient();
@@ -68,12 +72,15 @@ export default async function JobsPage({
   }
 
   // Row-level security limits this to the jobs this person may see.
-  let query = supabase
-    .from("jobs")
-    .select(
-      "id, property_address, plan_name, elevation, subdivision, status, completion_percent, brick_sqft, stone_sqft, stucco_sqft, builders(name)",
-      { count: "exact" },
-    );
+  let query = supabase.from("jobs").select(
+    // The inner join only narrows the rows; the row shape is the same.
+    (mine
+      ? `${JOB_COLS}, job_assignments!inner(profile_id)`
+      : JOB_COLS) as typeof JOB_COLS,
+    { count: "exact" },
+  );
+  // "My Jobs": jobs this person supervises or is assigned to.
+  if (mine) query = query.eq("job_assignments.profile_id", me.id);
   if (q) {
     const like = `%${q}%`;
     const ors = [
@@ -105,7 +112,7 @@ export default async function JobsPage({
     <>
       <PageHead
         title="Jobs"
-        sub={`${total.toLocaleString()} ${status ? STATUS_LABEL[status].toLowerCase() + " " : ""}job${total === 1 ? "" : "s"}${q ? ` matching “${q}”` : ""}.`}
+        sub={`${total.toLocaleString()} ${status ? STATUS_LABEL[status].toLowerCase() + " " : ""}job${total === 1 ? "" : "s"}${mine ? " assigned to you" : ""}${q ? ` matching “${q}”` : ""}.`}
       >
         {canCreateJobs(me) && (
           <Button asChild variant="fire" size="sm">
@@ -141,6 +148,13 @@ export default async function JobsPage({
               aria-current={!status}
             >
               All
+            </Link>
+            <Link
+              href={href(sp, { mine: mine ? undefined : "1", page: undefined })}
+              className="fchip"
+              aria-current={mine}
+            >
+              My Jobs
             </Link>
             {JOB_STATUSES.map((s) => (
               <Link

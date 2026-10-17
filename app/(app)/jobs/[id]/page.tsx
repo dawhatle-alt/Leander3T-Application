@@ -20,6 +20,7 @@ import {
   shortDate,
   stamp,
 } from "@/lib/jobs/format";
+import { AddressBlockControl } from "@/components/address-blocks/block-control";
 import { OrderBoard } from "@/components/orders/order-board";
 import { FormList } from "@/components/order-forms/form-list";
 import { GenerateFormButton } from "@/components/order-forms/generate-button";
@@ -359,11 +360,28 @@ export default async function JobPage({
           <KV
             k="Address block"
             v={
-              !block || block.status === "none"
-                ? "Not ordered"
-                : block.status === "ordered"
-                  ? `Ordered ${shortDate(block.ordered_date)}`
-                  : `Delivered ${shortDate(block.delivered_date)}`
+              <>
+                {editable ? (
+                  <AddressBlockControl
+                    jobId={id}
+                    status={block?.status ?? "none"}
+                  />
+                ) : null}
+                <span
+                  className={cn(
+                    editable &&
+                      "mt-1 block font-mono text-[12px] text-ink-muted",
+                  )}
+                >
+                  {!block || block.status === "none"
+                    ? editable
+                      ? ""
+                      : "Not ordered"
+                    : block.status === "ordered"
+                      ? `Ordered ${shortDate(block.ordered_date)}`
+                      : `Ordered ${shortDate(block.ordered_date)} · Delivered ${shortDate(block.delivered_date)}`}
+                </span>
+              </>
             }
           />
           <KV
@@ -570,15 +588,7 @@ function Card({
   );
 }
 
-function KV({
-  k,
-  v,
-  mono,
-}: {
-  k: string;
-  v: string | null | undefined;
-  mono?: boolean;
-}) {
+function KV({ k, v, mono }: { k: string; v: React.ReactNode; mono?: boolean }) {
   return (
     <div className="kv">
       <dt>{k}</dt>

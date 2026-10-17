@@ -23,6 +23,13 @@ export function AppShell({
       ? ([
           { href: "/admin/builders", label: "Builders", icon: "builders" },
           { href: "/admin/suppliers", label: "Suppliers", icon: "suppliers" },
+          { href: "/admin/crews", label: "Crews", icon: "crews" },
+          { href: "/admin/colors", label: "Colors", icon: "colors" },
+          {
+            href: "/admin/address-blocks",
+            label: "Address Blocks",
+            icon: "blocks",
+          },
         ] satisfies NavItem[])
       : []),
     { href: "/team", label: "Team", icon: "team" },

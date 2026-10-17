@@ -121,11 +121,13 @@ This replaces Documint and the email-chain workflow.
 
 ---
 
-## M7 — Dashboard and admin
+## M7 — Dashboard and admin ✅
 
-- [ ] `/dashboard` — stats (active jobs, new requests, orders pending review, completed), the four workflow cards (New Job, Update Job, Request Materials, My Jobs), Needs Attention queue, jobs-by-supervisor chart
-- [ ] `/admin/builders`, `/admin/construction-managers`, `/admin/suppliers`, `/admin/users` (invite, role assignment, deactivate)
-- [ ] `/admin/address-blocks`
+- [x] `/dashboard` — stats (active jobs, new job requests, orders pending review, completed), the four workflow cards (New Job, Update Job, Request Materials, My Jobs → `/jobs?mine=1`), Needs Attention (order forms awaiting review + crew manager material requests), Active Jobs by Supervisor
+- [x] `/admin/builders` with each builder's construction managers (`/admin/construction-managers` redirects there), `/admin/suppliers` (incl. which order types each supplies), `/admin/crews`, `/admin/colors` (brick and mortar picklists)
+- [x] People management on `/team`: invite, edit name/phone/role/builder link/construction-manager record, order-form reviewer flag, switch access off/on. Admins can't demote or switch off themselves
+- [x] `/admin/address-blocks` tracker (Not Ordered / Ordered / Delivered, one-click status, dates stamp in the database) plus the same control on each job page
+- Records are never deleted from admin screens — only switched off, so history keeps pointing at them
 
 **Done when:** an administrator can manage people and partners without touching the database.
 
