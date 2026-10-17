@@ -228,7 +228,7 @@ export default async function JobsPage({
                     <td>
                       <Link
                         href={`/jobs/${j.id}`}
-                        className="text-[15px] font-bold"
+                        className="text-[15px] font-bold whitespace-nowrap"
                       >
                         {j.property_address}
                       </Link>

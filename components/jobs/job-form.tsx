@@ -39,6 +39,7 @@ type Field =
       kind: "select";
       options: Option[];
       hint?: string;
+      required?: boolean;
     };
 
 export function JobForm({
@@ -130,7 +131,7 @@ export function JobForm({
         </label>
         {f.kind === "select" ? (
           <select {...common} {...register(f.name)}>
-            <option value="">—</option>
+            {!f.required && <option value="">—</option>}
             {f.options.map((o) => (
               <option key={o.value} value={o.value}>
                 {o.label}
@@ -276,6 +277,7 @@ export function JobForm({
           name: "company",
           label: "Company",
           kind: "select",
+          required: true,
           options: [
             { value: "leander_3t", label: "Leander 3T" },
             {
@@ -337,6 +339,7 @@ export function JobForm({
           name: "status",
           label: "Status",
           kind: "select",
+          required: true,
           options: [
             { value: "new", label: "New" },
             { value: "in_progress", label: "In Progress" },

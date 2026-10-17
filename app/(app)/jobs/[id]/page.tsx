@@ -421,7 +421,9 @@ export default async function JobPage({
 
       <h2 className="section-title">
         Job Photos <span className="chalk-line" aria-hidden="true" />
-        <span className="count-label">{photos.length} photos</span>
+        <span className="count-label">
+          {photos.length} {photos.length === 1 ? "photo" : "photos"}
+        </span>
       </h2>
       <div className="mb-[34px] grid gap-5">
         <PhotoUploader jobId={id} />
