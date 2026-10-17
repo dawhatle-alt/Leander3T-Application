@@ -116,7 +116,8 @@ from ins;
 
 update public.profiles p
 set phone = v.phone,
-    construction_manager_id = case when v.slug = 'sam' then md5('l3t-demo:cm:sam-oehler')::uuid end
+    construction_manager_id = case when v.slug = 'sam' then md5('l3t-demo:cm:sam-oehler')::uuid end,
+    reviews_order_forms = v.slug in ('harlee', 'cindy', 'jackson')
 from (values
   ('admin','(512) 260-2577'),('harlee','(512) 555-0301'),('cindy','(512) 555-0302'),('jackson','(512) 555-0303'),
   ('gerardo','(512) 555-0311'),('jose','(512) 555-0312'),('paco','(512) 555-0313'),('carlos','(512) 555-0314'),

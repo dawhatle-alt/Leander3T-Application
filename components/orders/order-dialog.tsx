@@ -7,6 +7,7 @@ import { X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Notice } from "@/components/auth/form-bits";
 import { ConfirmButton } from "@/components/jobs/confirm-button";
+import { GenerateFormButton } from "@/components/order-forms/generate-button";
 import { deleteOrder, saveOrder } from "@/lib/orders/actions";
 import { ORDER_TYPES, type OrderTypeKey } from "@/lib/orders/types";
 import {
@@ -357,6 +358,19 @@ export function OrderDialog({
               }}
             />
           )}
+          {perms.canPlace &&
+            orderId &&
+            (type === "stucco_material" || type === "paint") &&
+            !form.formState.isDirty && (
+              <GenerateFormButton
+                jobId={jobId}
+                layout={type === "paint" ? "paint" : "stucco"}
+                orderType={type}
+                orderId={orderId}
+                label="Create Order Form"
+                onDone={onSaved}
+              />
+            )}
           <span className="ml-auto" />
           <Button
             type="button"

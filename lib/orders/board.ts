@@ -43,7 +43,7 @@ export async function loadOrderBoard(
       sub: o.sub,
       ordered: o.ordered,
       createdBy: o.createdBy,
-      createdByName: o.createdByName,
+      requestedBy: o.requestedBy,
       values: o.values,
     })),
     visibleTypes: [...new Set(visibleTypes)],

@@ -24,7 +24,7 @@ export type BoardOrder = {
   sub: string;
   ordered: boolean;
   createdBy: string | null;
-  createdByName: string | null;
+  requestedBy: string | null;
   values: OrderFormValues;
 };
 
@@ -69,14 +69,17 @@ export function OrderBoard({
     preset?: Record<string, string>,
   ) => setEditing({ type, order, preset });
 
-  const initialFor = (e: Editing): OrderFormValues =>
-    e.order
-      ? e.order.values
-      : {
-          ...emptyOrder(e.type),
-          ...(defaults[e.type] ?? {}),
-          ...(e.preset ?? {}),
-        };
+  const initialFor = (e: Editing): OrderFormValues => {
+    if (e.order) return e.order.values;
+    // When only one supplier carries this kind of order, pick it.
+    const carriers = options.suppliers.filter((s) => s.types.includes(e.type));
+    return {
+      ...emptyOrder(e.type),
+      ...(carriers.length === 1 ? { supplier_id: carriers[0].value } : {}),
+      ...(defaults[e.type] ?? {}),
+      ...(e.preset ?? {}),
+    };
+  };
 
   return (
     <>
@@ -141,11 +144,10 @@ export function OrderBoard({
                           <span className="block font-semibold">{o.main}</span>
                           <span className="block text-[12.5px] text-ink-muted">
                             {o.sub}
-                            {!o.ordered && o.createdByName && (
+                            {!o.ordered && o.requestedBy && (
                               <>
                                 {" "}
-                                {o.sub ? "· " : ""}Requested by{" "}
-                                {o.createdByName}
+                                {o.sub ? "· " : ""}Requested by {o.requestedBy}
                               </>
                             )}
                           </span>

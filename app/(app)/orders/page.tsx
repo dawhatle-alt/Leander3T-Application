@@ -5,6 +5,7 @@ import { PageHead } from "@/components/shell/page-bits";
 import { shortDate } from "@/lib/jobs/format";
 import { requireProfile } from "@/lib/auth/session";
 import { loadOrderOptions, loadOrders } from "@/lib/orders/data";
+import { countPendingForms } from "@/lib/order-forms/data";
 import { ORDER_TYPES, ORDER_TYPE_LIST, isOrderType } from "@/lib/orders/types";
 import { cn } from "@/lib/utils";
 
@@ -43,9 +44,10 @@ export default async function OrdersPage({
     timeZone: "America/Chicago",
   }).format(since);
 
-  const [orders, options] = await Promise.all([
+  const [orders, options, formsToReview] = await Promise.all([
     loadOrders({ status, type, supplierId, since: sinceIso }),
     loadOrderOptions(),
+    countPendingForms(),
   ]);
   const canPlace = me.role === "admin" || me.role === "supervisor";
 
@@ -58,7 +60,21 @@ export default async function OrdersPage({
             ? `${orders.length} order${orders.length === 1 ? "" : "s"} waiting to be placed, soonest delivery first.`
             : `${orders.length} order${orders.length === 1 ? "" : "s"} placed in the last ${RECENT_DAYS} days.`
         }
-      />
+      >
+        {me.role !== "crew_manager" && (
+          <Link
+            href="/orders/forms"
+            className="inline-flex items-center gap-2 rounded-md border-[1.5px] border-mortar-2 bg-paper px-4 py-2 text-[14px] font-bold hover:border-flame hover:text-flame"
+          >
+            Order Forms
+            {formsToReview > 0 && (
+              <span className="rounded-full bg-flame px-2 py-0.5 font-mono text-[11px] text-white">
+                {formsToReview} to review
+              </span>
+            )}
+          </Link>
+        )}
+      </PageHead>
 
       <div className="mb-[22px] flex flex-wrap items-center gap-2.5">
         <Link
@@ -156,8 +172,8 @@ export default async function OrdersPage({
                     {o.job?.builder && ` · ${o.job.builder}`}
                     {o.supplierName && ` · ${o.supplierName}`}
                     {!o.ordered &&
-                      o.createdByName &&
-                      ` · Requested by ${o.createdByName}`}
+                      o.requestedBy &&
+                      ` · Requested by ${o.requestedBy}`}
                   </div>
                 </div>
                 <div className="flex flex-none items-center gap-3">
