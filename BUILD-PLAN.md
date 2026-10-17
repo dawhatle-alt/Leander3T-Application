@@ -77,14 +77,14 @@ Credible fake data so the UI can be built and demoed before migration.
 
 ## M4 — Jobs (the core)
 
-- [ ] `/jobs` — server-paginated table with search across address, builder, subdivision, plan; status filter chips; RLS-scoped automatically
-- [ ] `/jobs/[id]` — spec cards per trade (brick/stone/stucco) with colors, mortar, SF, drop, schedule, crew; completion bar; edit actions
-- [ ] `/jobs/new` and edit forms (React Hook Form + Zod), including builder/CM selection
-- [ ] Photo gallery: upload to `photos` bucket, captions, date stamps, delete with confirm
-- [ ] Plans/documents upload to `plans` bucket
-- [ ] Kanban view toggle by status (replaces the legacy Airtable Kanban)
+- [x] `/jobs` — server-paginated table (25 a page) with search across address, builder, subdivision, plan and area; status filter chips; scoped by row-level security
+- [x] `/jobs/[id]` — job header, completion bar, spec cards per trade (colors, mortar, SF, drop, schedule, crew), house & builder and dates cards, read-only material order summary (adding orders is M5), notes
+- [x] `/jobs/new` and `/jobs/[id]/edit` (React Hook Form + Zod, one schema shared with the server action) covering every job field, including builder → CM selection and, for admins, the job's supervisors and employees
+- [x] Photo gallery: phone photos shrunk to 2000px in the browser, uploaded to `photos`, caption + trade, date from the photo, full-screen view, delete with confirm
+- [x] Plans/documents upload to `plans` (job editors), signed links, admin delete
+- [x] Board view toggle by status (replaces the legacy Airtable Kanban; read-only, opens the job)
 
-**Done when:** a supervisor can run a job end-to-end — create it, set specs, upload plans, add photos, mark it complete — and the triggers stamp dates correctly.
+**Done when:** a supervisor can run a job end-to-end — create it, set specs, upload plans, add photos, mark it complete — and the triggers stamp dates correctly. Database side checked 2026-10-17 as supervisor Gerardo and employee Luis (rolled back): edits only own jobs, 100% → completed + date stamped, new job self-assigns, employees can't create or edit.
 
 ---
 
