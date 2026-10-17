@@ -208,6 +208,7 @@ export type Database = {
       }
       construction_managers: {
         Row: {
+          active: boolean
           airtable_id: string | null
           builder_id: string | null
           created_at: string
@@ -219,6 +220,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          active?: boolean
           airtable_id?: string | null
           builder_id?: string | null
           created_at?: string
@@ -230,6 +232,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          active?: boolean
           airtable_id?: string | null
           builder_id?: string | null
           created_at?: string

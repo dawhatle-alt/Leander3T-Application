@@ -5,8 +5,11 @@ import { usePathname } from "next/navigation";
 import {
   Building2,
   ClipboardList,
+  HardHat,
   House,
   LayoutDashboard,
+  MapPin,
+  Palette,
   Truck,
   Users,
   type LucideIcon,
@@ -19,6 +22,9 @@ const ICONS: Record<string, LucideIcon> = {
   orders: ClipboardList,
   builders: Building2,
   suppliers: Truck,
+  crews: HardHat,
+  colors: Palette,
+  blocks: MapPin,
   team: Users,
 };
 

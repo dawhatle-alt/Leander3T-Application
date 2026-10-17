@@ -84,7 +84,10 @@ export function JobForm({
       name,
     );
 
-  const managers = options.managers.filter((m) => m.builderId === builderId);
+  const managers = live(
+    options.managers.filter((m) => m.builderId === builderId),
+    "construction_manager_id",
+  );
 
   const onSubmit = handleSubmit(() => {
     setFormError(null);

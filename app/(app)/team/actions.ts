@@ -1,10 +1,11 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { z } from "zod";
 import { siteOrigin } from "@/lib/auth/origin";
-import { ROLE_LABEL, type AppRole } from "@/lib/auth/roles";
+import { ROLES, ROLE_LABEL, type AppRole } from "@/lib/auth/roles";
 import { getSessionProfile } from "@/lib/auth/session";
-import { createAdminClient } from "@/lib/supabase/server";
+import { createAdminClient, createClient } from "@/lib/supabase/server";
 import { inviteSchema, type FormState } from "@/lib/validation/auth";
 
 // Admins invite people by email. Supabase sends the invitation; the link signs
@@ -66,4 +67,72 @@ export async function invitePerson(
 
   revalidatePath("/team");
   return { message: `Invitation sent to ${email} as ${ROLE_LABEL[role]}.` };
+}
+
+const personSchema = z.object({
+  id: z.guid(),
+  fullName: z.string().trim().min(1, "Enter a name.").max(120),
+  phone: z.string().trim().max(40),
+  role: z.enum(ROLES as [AppRole, ...AppRole[]]),
+  builderId: z.union([z.literal(""), z.guid()]),
+  constructionManagerId: z.union([z.literal(""), z.guid()]),
+  reviewsOrderForms: z.boolean(),
+  active: z.boolean(),
+});
+export type PersonInput = z.input<typeof personSchema>;
+
+/** Administration: change someone's name, role, builder link, reviewer flag or access. */
+export async function updatePerson(input: PersonInput): Promise<FormState> {
+  const me = await getSessionProfile();
+  if (me?.role !== "admin")
+    return { error: "Only Administration can change people." };
+  const parsed = personSchema.safeParse(input);
+  if (!parsed.success) return { error: parsed.error.issues[0]?.message };
+  const p = parsed.data;
+
+  // Never lock yourself out.
+  if (p.id === me.id && (p.role !== "admin" || !p.active))
+    return {
+      error:
+        "You can't remove your own Administration access. Ask another administrator.",
+    };
+  if (p.role === "builder" && !p.builderId)
+    return { error: "Pick the builder this person works for." };
+
+  const supabase = await createClient();
+  const isBuilder = p.role === "builder";
+  if (isBuilder && p.constructionManagerId) {
+    const { data: cm } = await supabase
+      .from("construction_managers")
+      .select("builder_id")
+      .eq("id", p.constructionManagerId)
+      .maybeSingle();
+    if (cm?.builder_id !== p.builderId)
+      return { error: "That construction manager works for another builder." };
+  }
+
+  const { data, error } = await supabase
+    .from("profiles")
+    .update({
+      full_name: p.fullName,
+      phone: p.phone || null,
+      role: p.role,
+      builder_id: isBuilder ? p.builderId : null,
+      construction_manager_id: isBuilder
+        ? p.constructionManagerId || null
+        : null,
+      // Only the office reviews order forms.
+      reviews_order_forms:
+        p.role === "admin" || p.role === "supervisor"
+          ? p.reviewsOrderForms
+          : false,
+      active: p.active,
+    })
+    .eq("id", p.id)
+    .select("id");
+  if (error || !data?.length)
+    return { error: "The changes couldn't be saved. Try again." };
+
+  revalidatePath("/team");
+  return { message: `Saved ${p.fullName}.` };
 }
