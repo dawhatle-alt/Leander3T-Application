@@ -4,6 +4,7 @@ import {
   EntityEditButton,
 } from "@/components/admin/entity-editor";
 import { AdminRow, OffBadge, mono } from "@/components/admin/admin-bits";
+import { PortalInviteButton } from "@/components/admin/portal-invite";
 import { PageHead, Panel } from "@/components/shell/page-bits";
 import { rowToValues } from "@/lib/admin/entities";
 import { loadEntityOptions } from "@/lib/admin/options";
@@ -15,17 +16,30 @@ export const metadata: Metadata = { title: "Builders — Leander 3T" };
 // of each job, and later the portal users).
 export default async function BuildersPage() {
   const supabase = await createClient();
-  const [{ data: builders }, { data: managers }, { data: open }, options] =
-    await Promise.all([
-      supabase
-        .from("builders")
-        .select("*")
-        .order("active", { ascending: false })
-        .order("name"),
-      supabase.from("construction_managers").select("*").order("name"),
-      supabase.from("jobs").select("builder_id").neq("status", "completed"),
-      loadEntityOptions(),
-    ]);
+  const [
+    { data: builders },
+    { data: managers },
+    { data: open },
+    options,
+    { data: portalUsers },
+  ] = await Promise.all([
+    supabase
+      .from("builders")
+      .select("*")
+      .order("active", { ascending: false })
+      .order("name"),
+    supabase.from("construction_managers").select("*").order("name"),
+    supabase.from("jobs").select("builder_id").neq("status", "completed"),
+    loadEntityOptions(),
+    supabase
+      .from("profiles")
+      .select("construction_manager_id, active")
+      .eq("role", "builder")
+      .not("construction_manager_id", "is", null),
+  ]);
+  const portal = new Map(
+    (portalUsers ?? []).map((p) => [p.construction_manager_id!, p.active]),
+  );
 
   const openJobs = new Map<string, number>();
   for (const j of open ?? [])
@@ -64,6 +78,15 @@ export default async function BuildersPage() {
                         id={b.id}
                         active={b.active}
                       />
+                      {b.active && (
+                        // Route handler sets the preview cookie, so a plain link.
+                        <a
+                          href={`/portal/preview?builder=${b.id}`}
+                          className="rounded-[6px] border-[1.5px] border-mortar-2 px-3 py-1.5 text-[13px] font-bold whitespace-nowrap hover:border-flame hover:text-flame"
+                        >
+                          Preview Portal
+                        </a>
+                      )}
                     </>
                   }
                 >
@@ -100,6 +123,21 @@ export default async function BuildersPage() {
                           id={m.id}
                           active={m.active}
                         />
+                        {portal.has(m.id) ? (
+                          <span
+                            className={
+                              portal.get(m.id)
+                                ? "rounded-full bg-[#2f6b451a] px-2.5 py-1 font-mono text-[10.5px] tracking-[0.1em] text-success uppercase"
+                                : "rounded-full bg-[#c42b1f14] px-2.5 py-1 font-mono text-[10.5px] tracking-[0.1em] text-chalk uppercase"
+                            }
+                          >
+                            {portal.get(m.id) ? "Portal access" : "Portal off"}
+                          </span>
+                        ) : (
+                          m.active &&
+                          b.active &&
+                          m.email && <PortalInviteButton cmId={m.id} />
+                        )}
                       </>
                     }
                   >

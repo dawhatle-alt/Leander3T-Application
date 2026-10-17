@@ -1,19 +1,21 @@
 import { TopShell } from "@/components/shell/top-shell";
-import { requireProfile } from "@/lib/auth/session";
+import { portalContext } from "@/lib/portal/context";
 
 export default async function PortalLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const profile = await requireProfile();
+  const ctx = await portalContext();
   return (
     <TopShell
-      profile={profile}
+      profile={ctx.me}
       home="/portal"
       label="Builder Portal"
       sublabel="FOR OUR BUILDER PARTNERS"
-      context={profile.builderName ? `${profile.builderName} · CM` : null}
+      context={
+        ctx.preview ? `Preview · ${ctx.builderName}` : `${ctx.builderName} · CM`
+      }
     >
       {children}
     </TopShell>

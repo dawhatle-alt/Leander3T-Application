@@ -145,17 +145,16 @@ This replaces Documint and the email-chain workflow.
 
 ---
 
-## M9 — Builder portal
+## M9 — Builder portal ✅
 
 The headline new capability. Scope discipline matters here: builders see **status**, never internals.
 
-- [ ] `/portal` — welcome header scoped to their builder, stats (active homes, crews on site, scheduled this week, completed this year)
-- [ ] Featured/active home cards with per-trade progress, schedule dates, specs on file, recent photos
-- [ ] `/portal/homes/[id]` — full read-only home view
-- [ ] Job request submission → intake queue in the team app
-- [ ] Recent updates feed; Leander 3T contact card (supervisor + office)
-- [ ] Builder user invite flow from `/admin/builders`
-- [ ] **Security test:** a builder user provably cannot read another builder's jobs, suppliers, costs, or payroll archive — test at the SQL layer, not just the UI
+- [x] `/portal` — welcome header and scope badge, stats (active homes, crews on site today, scheduled this week, completed this year), featured home with per-trade progress, specs on file and latest photos, active home cards
+- [x] `/portal/homes` (search, status filters, "My Homes" for a CM with a linked record, paging) and `/portal/homes/[id]` — read-only: trade status, schedule, specs, plans/elevation/color selections, photos, and "Request an Update"
+- [x] Job requests: `/portal/requests/new` (new job) and update requests on each home → `job_requests` → office intake queue `/jobs/requests` (Create Job pre-fills a new job and opens it; Decline / Reply sends an answer the builder sees). Office emailed on new requests, builder emailed on replies, once Resend is configured. Waiting requests show in the dashboard's Needs Attention and on the Jobs page
+- [x] Recent Updates feed (derived from photos, trade starts/finishes, address block deliveries, completions — no extra tables); Leander 3T team card from `portal_contacts()` (supervisors on the builder's open homes + office)
+- [x] Builder user invite from `/admin/builders`: "Invite to Portal" on each construction manager (uses the CM's email, links the account to the CM record); "Preview Portal" lets admins see exactly what a builder sees
+- [x] **Security test:** `supabase/tests/portal_isolation.sql` runs as the Ashton Woods demo CM under row-level security and proves he cannot read other builders' homes, photos, files, requests or contacts, nor any suppliers, orders, order forms, notes, crews, assignments, website requests, staff profiles or payroll archive — and cannot edit homes, review requests, file for another company or promote himself. Passing as of M9
 
 **Done when:** signed in as a test Ashton Woods CM, the portal shows only Ashton Woods homes and every attempt to reach anything else fails at the database.
 
