@@ -90,14 +90,17 @@ Credible fake data so the UI can be built and demoed before migration.
 
 ## M5 — Material orders
 
-- [ ] Order sections on the job detail page, one per type, matching the legacy layout
-- [ ] Add/edit dialogs per order type with the right fields; lintel quick-add buttons for 3x4 (¼") and 4x4 (⅜")
-- [ ] Stucco material order form with its ~20 line items, grouped sensibly
-- [ ] Supplier assignment and requested delivery dates
-- [ ] Crew manager view: phone-friendly list of their crew's jobs with a Request materials action for each order type; their orders land in the review queue like any other. Match the Crew Manager screen in `design/approved-mockup.html`
-- [ ] `/orders` cross-job view for the office: everything pending, by status and supplier
+- [x] Order sections on the job page, one card per order type (shown for the job's trades; other types one tap away)
+- [x] Add/edit dialog per order type from one definition (`lib/orders/types.ts`); lintel quick-add buttons for 3x4 (1/4") and 4x4 (3/8"); new orders start from the job's specs (mortar color, stone color/drop, paint colors)
+- [x] Stucco supply order with sand, mortar and a quantity + unit for each of the 18 catalog items
+- [x] Supplier list filtered to suppliers who carry that order type; requested delivery dates
+- [x] Crew manager view: `/crew` → tap a job → specs + Request Materials. Requests are drafts that go to the office; "Waiting on the Office" lists them
+- [x] `/orders` for the office: To Order (soonest delivery first) and Ordered (last 30 days), by type and supplier, with Mark Ordered
+- [x] Office ticks "Ordered" (or Mark Ordered) → `ordered_date` stamps itself; unticking clears it
+- [x] Database: crew managers can't place an order or change a placed one (migration `crew_manager_order_rules`, applied)
+- [ ] **Apply `20261017190000_crew_manager_withdraw_drafts.sql`** (`npx supabase db push`): lets crew managers withdraw their own drafts and locks line-item removal on placed stucco orders. Until then a crew manager's "Withdraw" is refused and the office removes drafts.
 
-**Done when:** every order type from the legacy system can be created and edited, `ordered_date` stamps itself, and a crew manager can order supplies for their crew's jobs and no others.
+**Done when:** every order type from the legacy system can be created and edited, `ordered_date` stamps itself, and a crew manager can order supplies for their crew's jobs and no others. Database side checked 2026-10-17 as Ramon (drafts only, own crew only, can't place or edit placed), Miguel + Cindy (stucco draft with line items → placed by office, date stamped → line items locked for Miguel).
 
 ---
 
