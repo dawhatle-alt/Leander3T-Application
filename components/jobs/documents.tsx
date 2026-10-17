@@ -49,8 +49,10 @@ export function DocumentUploader({ jobId }: { jobId: string }) {
       : await recordDocument({ jobId, path, fileName: file.name, kind });
     setBusy(false);
     if (input.current) input.current.value = "";
-    if (res.error) setError(res.error);
-    else router.refresh();
+    if (res.error) {
+      if (!upErr) await createClient().storage.from("plans").remove([path]);
+      setError(res.error);
+    } else router.refresh();
   }
 
   return (

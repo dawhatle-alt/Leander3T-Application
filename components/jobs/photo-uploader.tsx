@@ -59,6 +59,8 @@ export function PhotoUploader({ jobId }: { jobId: string }) {
         })),
       );
       if (res.error) {
+        // Nothing was recorded: remove the files this upload just added.
+        await supabase.storage.from("photos").remove(done.map((d) => d.path));
         setResult({ tone: "error", text: res.error });
       } else {
         const failed = list.length - res.saved;

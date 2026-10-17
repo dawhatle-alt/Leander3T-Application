@@ -9,7 +9,7 @@ import type { FormState } from "@/lib/validation/auth";
 // Everything here runs as the signed-in person: the database decides who may
 // add or remove notes, photos and documents on a job.
 
-const uuid = z.string().uuid();
+const uuid = z.guid();
 const date = z
   .string()
   .regex(/^\d{4}-\d{2}-\d{2}$/)

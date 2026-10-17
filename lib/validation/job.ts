@@ -112,8 +112,8 @@ export const jobSchema = z.object({
   additional_notes: text(4000),
 
   // People on the job (admins only; ignored for everyone else)
-  supervisor_ids: z.array(z.string().uuid()),
-  employee_ids: z.array(z.string().uuid()),
+  supervisor_ids: z.array(z.guid()),
+  employee_ids: z.array(z.guid()),
 });
 
 export type JobFormInput = z.input<typeof jobSchema>;

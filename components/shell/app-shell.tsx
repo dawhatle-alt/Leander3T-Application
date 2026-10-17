@@ -29,8 +29,8 @@ export function AppShell({
   ];
 
   return (
-    <div className="grid min-h-screen md:grid-cols-[248px_1fr]">
-      <aside className="flex items-center gap-1.5 overflow-x-auto bg-charcoal px-4 py-3 text-[#cfc6ba] md:sticky md:top-0 md:h-screen md:flex-col md:items-stretch md:overflow-visible md:px-4 md:py-[22px]">
+    <div className="grid min-h-screen grid-cols-[minmax(0,1fr)] md:grid-cols-[248px_minmax(0,1fr)]">
+      <aside className="flex [scrollbar-width:none] items-center gap-1.5 overflow-x-auto bg-charcoal px-4 py-3 text-[#cfc6ba] md:sticky md:top-0 md:h-screen md:flex-col md:items-stretch md:overflow-visible md:px-4 md:py-[22px]">
         <Link
           href="/dashboard"
           className="flex flex-none items-center gap-3 pr-3.5 md:mb-3.5 md:border-b md:border-limestone/9 md:px-2.5 md:pt-1.5 md:pb-5"

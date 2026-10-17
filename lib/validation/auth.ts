@@ -38,7 +38,7 @@ export const inviteSchema = z
     fullName: z.string().trim().min(2, "Enter their name.").max(80),
     email,
     role: z.enum(ROLES as [string, ...string[]]),
-    builderId: z.string().uuid().optional().or(z.literal("")),
+    builderId: z.guid().optional().or(z.literal("")),
   })
   .refine((v) => v.role !== "builder" || !!v.builderId, {
     message: "Pick the builder this person works for.",

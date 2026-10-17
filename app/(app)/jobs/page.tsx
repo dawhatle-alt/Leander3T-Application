@@ -175,68 +175,106 @@ export default async function JobsPage({
       </div>
 
       {view === "list" ? (
-        <div className="overflow-auto rounded-md border border-mortar bg-paper shadow-card">
-          <table className="data-table">
-            <thead>
-              <tr>
-                <th>Property</th>
-                <th>Builder</th>
-                <th>Subdivision</th>
-                <th>Trades</th>
-                <th>Status</th>
-                <th>Progress</th>
-                <th>
-                  <span className="sr-only">Open</span>
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {(jobs ?? []).map((j) => (
-                <tr key={j.id}>
-                  <td>
-                    <Link
-                      href={`/jobs/${j.id}`}
-                      className="text-[15px] font-bold"
-                    >
-                      {j.property_address}
-                    </Link>
-                    {planLine(j) && (
-                      <small className="mt-0.5 block text-[12.5px] text-ink-muted">
-                        {planLine(j)}
-                      </small>
-                    )}
-                  </td>
-                  <td>
-                    {j.builders?.name && (
-                      <span className="builder-tag">{j.builders.name}</span>
-                    )}
-                  </td>
-                  <td>{j.subdivision ?? "—"}</td>
-                  <td className="font-mono text-[13px]">{tradeSummary(j)}</td>
-                  <td>
-                    <span className={cn("badge", STATUS_BADGE[j.status])}>
-                      {STATUS_LABEL[j.status]}
-                    </span>
-                  </td>
-                  <td className="font-mono text-[13px]">
-                    {num(j.completion_percent)}%
-                  </td>
-                  <td>
-                    <Button asChild variant="dark" size="sm">
-                      <Link href={`/jobs/${j.id}`}>Open</Link>
-                    </Button>
-                  </td>
-                </tr>
-              ))}
-              {jobs?.length === 0 && (
+        <div className="rounded-md border border-mortar bg-paper shadow-card">
+          {/* Phones: one card per job. */}
+          <ul className="divide-y divide-mortar md:hidden">
+            {(jobs ?? []).map((j) => (
+              <li key={j.id}>
+                <Link
+                  href={`/jobs/${j.id}`}
+                  className="flex items-start justify-between gap-3 px-4 py-3.5"
+                >
+                  <div className="min-w-0">
+                    <div className="font-bold">{j.property_address}</div>
+                    <div className="mt-0.5 font-mono text-[11px] tracking-[0.08em] text-ink-muted uppercase">
+                      {[j.builders?.name, j.subdivision]
+                        .filter(Boolean)
+                        .join(" · ")}
+                    </div>
+                    <div className="mt-1 font-mono text-[12px] whitespace-nowrap text-ink-muted">
+                      {tradeSummary(j)} · {num(j.completion_percent)}%
+                    </div>
+                  </div>
+                  <span className={cn("badge", STATUS_BADGE[j.status])}>
+                    {STATUS_LABEL[j.status]}
+                  </span>
+                </Link>
+              </li>
+            ))}
+            {jobs?.length === 0 && (
+              <li className="px-4 py-10 text-center text-ink-muted">
+                No jobs match. Try a different search or filter.
+              </li>
+            )}
+          </ul>
+          <div className="hidden overflow-x-auto md:block">
+            <table className="data-table">
+              <thead>
                 <tr>
-                  <td colSpan={7} className="py-10 text-center text-ink-muted">
-                    No jobs match. Try a different search or filter.
-                  </td>
+                  <th>Property</th>
+                  <th>Builder</th>
+                  <th>Subdivision</th>
+                  <th>Trades</th>
+                  <th>Status</th>
+                  <th>Progress</th>
+                  <th>
+                    <span className="sr-only">Open</span>
+                  </th>
                 </tr>
-              )}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {(jobs ?? []).map((j) => (
+                  <tr key={j.id}>
+                    <td>
+                      <Link
+                        href={`/jobs/${j.id}`}
+                        className="text-[15px] font-bold"
+                      >
+                        {j.property_address}
+                      </Link>
+                      {planLine(j) && (
+                        <small className="mt-0.5 block text-[12.5px] text-ink-muted">
+                          {planLine(j)}
+                        </small>
+                      )}
+                    </td>
+                    <td>
+                      {j.builders?.name && (
+                        <span className="builder-tag">{j.builders.name}</span>
+                      )}
+                    </td>
+                    <td>{j.subdivision ?? "—"}</td>
+                    <td className="font-mono text-[13px] whitespace-nowrap">
+                      {tradeSummary(j)}
+                    </td>
+                    <td>
+                      <span className={cn("badge", STATUS_BADGE[j.status])}>
+                        {STATUS_LABEL[j.status]}
+                      </span>
+                    </td>
+                    <td className="font-mono text-[13px]">
+                      {num(j.completion_percent)}%
+                    </td>
+                    <td>
+                      <Button asChild variant="dark" size="sm">
+                        <Link href={`/jobs/${j.id}`}>Open</Link>
+                      </Button>
+                    </td>
+                  </tr>
+                ))}
+                {jobs?.length === 0 && (
+                  <tr>
+                    <td
+                      colSpan={7}
+                      className="py-10 text-center text-ink-muted"
+                    >
+                      No jobs match. Try a different search or filter.
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
           {total > 0 && (
             <div className="flex flex-wrap items-center justify-between gap-3 px-5 py-3.5 text-[13.5px] text-ink-muted">
               <span>
