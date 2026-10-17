@@ -21,6 +21,11 @@ export function AppShell({
     { href: "/orders", label: "Orders", icon: "orders" },
     ...(profile.role === "admin"
       ? ([
+          {
+            href: "/admin/requests",
+            label: "Website Requests",
+            icon: "requests",
+          },
           { href: "/admin/builders", label: "Builders", icon: "builders" },
           { href: "/admin/suppliers", label: "Suppliers", icon: "suppliers" },
           { href: "/admin/crews", label: "Crews", icon: "crews" },

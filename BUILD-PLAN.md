@@ -133,12 +133,13 @@ This replaces Documint and the email-chain workflow.
 
 ---
 
-## M8 — Public website
+## M8 — Public website ✅
 
-- [ ] `/` — the approved mockup design in `design/approved-mockup.html`: hero, trades section with material photography, trust band, stats, process, contact
-- [ ] `/request-info` → `info_requests` + notification email; spam protection
-- [ ] SEO basics: metadata, OG tags, sitemap, favicon from the logo
-- [ ] Lighthouse: performance and accessibility ≥ 90 on mobile
+- [x] `/` — the approved mockup ported to `app/(marketing)` (styles scoped under `.site`): hero, trust band, trades with the mockup's material photos (`public/marketing/*.jpg`), numbers band (fixed marketing copy), process, contact, footer
+- [x] Request More Information form → `info_requests`, written by the server only (no public insert policy). Spam checks: hidden honeypot field, 3-second minimum, 3 requests/hour per IP. All active admins are emailed once Resend is configured (`EMAIL_FROM` or `ORDER_FORMS_FROM`). `/request-info` redirects to the form
+- [x] `/admin/requests` — Website Requests with status and owner; new ones also show in the dashboard's Needs Attention
+- [x] SEO basics: per-page metadata, Open Graph/Twitter card (`/marketing/og.jpg`), `robots.txt` (signed-in areas excluded), `sitemap.xml`, favicon/app icons from the logo, LocalBusiness structured data. Set `NEXT_PUBLIC_SITE_URL` at cutover
+- [x] Lighthouse (mobile, local production build): Performance 97–99, Accessibility 96, Best Practices 100, SEO 100. Remaining note: small orange (flame) labels on light backgrounds are below 4.5:1 — kept as the approved brand accent
 
 **Done when:** the public site is production-ready pending DNS.
 

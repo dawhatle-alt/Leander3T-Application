@@ -307,6 +307,7 @@ export type Database = {
           name: string
           notes: string | null
           phone: string | null
+          source_ip: string | null
           status: Database["public"]["Enums"]["request_status"]
           updated_at: string
         }
@@ -322,6 +323,7 @@ export type Database = {
           name: string
           notes?: string | null
           phone?: string | null
+          source_ip?: string | null
           status?: Database["public"]["Enums"]["request_status"]
           updated_at?: string
         }
@@ -337,6 +339,7 @@ export type Database = {
           name?: string
           notes?: string | null
           phone?: string | null
+          source_ip?: string | null
           status?: Database["public"]["Enums"]["request_status"]
           updated_at?: string
         }

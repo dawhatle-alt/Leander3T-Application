@@ -57,7 +57,8 @@ export default async function DashboardPage() {
   // Counts respect row-level security: an employee sees only their jobs.
   const count = async (q: PromiseLike<{ count: number | null }>) =>
     (await q).count ?? 0;
-  const [active, fresh, completed, forms, pending, bySupervisor] =
+  const isAdmin = profile.role === "admin";
+  const [active, fresh, completed, forms, pending, bySupervisor, webRequests] =
     await Promise.all([
       count(
         supabase
@@ -84,12 +85,34 @@ export default async function DashboardPage() {
         .select("profile_id, profiles(full_name), jobs!inner(status)")
         .eq("kind", "supervisor")
         .eq("jobs.status", "in_progress"),
+      isAdmin
+        ? supabase
+            .from("info_requests")
+            .select("id, name, company_name, created_at")
+            .eq("status", "todo")
+            .order("created_at", { ascending: false })
+        : Promise.resolve({
+            data: [] as {
+              id: string;
+              name: string;
+              company_name: string | null;
+              created_at: string;
+            }[],
+          }),
     ]);
 
   // Crew manager material requests the office hasn't placed yet.
   const crewRequests = pending.filter((o) => o.requestedBy && o.job);
 
   const attention: Attention[] = [
+    ...(webRequests.data ?? []).map((r) => ({
+      key: `w-${r.id}`,
+      tone: "red" as const,
+      title: `Website request — ${r.name}${r.company_name ? `, ${r.company_name}` : ""}`,
+      sub: `Received ${stamp(r.created_at)}`,
+      href: "/admin/requests",
+      action: "Open",
+    })),
     ...forms.map((f) => ({
       key: `f-${f.id}`,
       tone: "amber" as const,
