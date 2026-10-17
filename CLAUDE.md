@@ -41,6 +41,7 @@ lib/
 supabase/
   migrations/           # SQL migrations (source of truth for schema)
   seed/                 # seed + fake-data scripts
+  tests/                # SQL tests (role-access smoke test)
 design/
   approved-mockup.html  # client-approved mockup; the visual source of truth
 scripts/

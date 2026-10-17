@@ -1,0 +1,162 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+/*
+ * Coursework — Leander 3T design tokens.
+ * Source of truth: design/approved-mockup.html. Do not add colors here
+ * that are not in the mockup.
+ */
+:root {
+  --charcoal: #211b17;
+  --soot: #2d2521;
+  --limestone: #f6f1e8;
+  --paper: #ffffff;
+  --mortar: #e6dccb;
+  --mortar-2: #d8cdb9;
+  --ink: #241e19;
+  --ink-muted: #75685c;
+  --amber: #f49f0a;
+  --flame: #e4590f;
+  --chalk: #c42b1f;
+  --green: #2f6b45;
+  --blue: #33638f;
+  --grad-fire: linear-gradient(135deg, #f9b234 0%, #f49f0a 38%, #e4590f 100%);
+
+  /* shadcn/ui semantic tokens, mapped onto Coursework */
+  --radius: 0.625rem;
+  --background: var(--limestone);
+  --foreground: var(--ink);
+  --card: var(--paper);
+  --card-foreground: var(--ink);
+  --popover: var(--paper);
+  --popover-foreground: var(--ink);
+  --primary: var(--flame);
+  --primary-foreground: #20130a;
+  --secondary: var(--charcoal);
+  --secondary-foreground: var(--limestone);
+  --muted: var(--mortar);
+  --muted-foreground: var(--ink-muted);
+  --accent: var(--mortar);
+  --accent-foreground: var(--ink);
+  --destructive: var(--chalk);
+  --border: var(--mortar);
+  --input: var(--mortar-2);
+  --ring: var(--amber);
+}
+
+@theme inline {
+  --color-charcoal: var(--charcoal);
+  --color-soot: var(--soot);
+  --color-limestone: var(--limestone);
+  --color-paper: var(--paper);
+  --color-mortar: var(--mortar);
+  --color-mortar-2: var(--mortar-2);
+  --color-ink: var(--ink);
+  --color-ink-muted: var(--ink-muted);
+  --color-amber: var(--amber);
+  --color-flame: var(--flame);
+  --color-chalk: var(--chalk);
+  --color-success: var(--green);
+  --color-info: var(--blue);
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+
+  --font-display: var(--font-barlow-condensed), Impact, sans-serif;
+  --font-sans: var(--font-barlow), "Helvetica Neue", Arial, sans-serif;
+  --font-mono: var(--font-ibm-plex-mono), ui-monospace, monospace;
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background font-sans text-foreground antialiased;
+    line-height: 1.55;
+  }
+  :focus-visible {
+    outline: 3px solid var(--amber);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+}
+
+/* Brick-coursing texture for dark sections (signature element). */
+@utility coursing {
+  background-color: var(--charcoal);
+  background-image:
+    linear-gradient(rgba(246, 241, 232, 0.055) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(246, 241, 232, 0.05) 1px, transparent 1px),
+    linear-gradient(
+      90deg,
+      transparent 79px,
+      rgba(246, 241, 232, 0.05) 79px,
+      rgba(246, 241, 232, 0.05) 80px,
+      transparent 80px
+    );
+  background-size:
+    160px 44px,
+    160px 88px,
+    160px 88px;
+  background-position:
+    0 0,
+    0 0,
+    80px 44px;
+}
+
+/* Amber-to-flame gradient, reserved for primary actions. */
+@utility bg-fire {
+  background-image: var(--grad-fire);
+}
+
+/* The mason's snapped line: a thin chalk rule used as a section accent. */
+@utility chalk-line {
+  position: relative;
+  display: inline-block;
+  height: 2px;
+  width: 64px;
+  background: var(--chalk);
+  vertical-align: middle;
+  &::after {
+    content: "";
+    position: absolute;
+    right: -4px;
+    top: -3px;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--chalk);
+  }
+}
+
+@utility eyebrow {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
