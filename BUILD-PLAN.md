@@ -57,7 +57,7 @@ Credible fake data so the UI can be built and demoed before migration.
 - [x] Idempotent: re-runnable without duplicating (fixed ids; clears previous demo rows first)
 - [x] Removable: every demo row is tagged (`demo` column, or `app_metadata.demo` on sign-ins); `npm run seed:clear` removes them before the Airtable import (M10)
 
-**Done when:** `npm run seed` produces a database that looks like a real month at Leander 3T.
+**Done when:** `npm run seed` produces a database that looks like a real month at Leander 3T. **Met 2026-10-16:** loaded into Leander3T. Spot checks: crew manager Ramon sees only his crew's 18 jobs (Provence, Lagos); builder Sam sees only Ashton Woods' 12 homes and no orders.
 
 ---
 
