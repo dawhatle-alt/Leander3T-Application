@@ -20,6 +20,15 @@ export async function middleware(request: NextRequest) {
     });
   }
 
+  // Public pages for visitors with no session: nothing to refresh or check.
+  if (
+    !areaFor(request.nextUrl.pathname) &&
+    request.nextUrl.pathname !== "/sign-in" &&
+    !request.cookies.getAll().some((c) => c.name.startsWith("sb-"))
+  ) {
+    return response;
+  }
+
   const supabase = createServerClient<Database>(url, key, {
     cookies: {
       getAll() {

@@ -7,6 +7,7 @@ import {
   ClipboardList,
   HardHat,
   House,
+  Inbox,
   LayoutDashboard,
   MapPin,
   Palette,
@@ -25,6 +26,7 @@ const ICONS: Record<string, LucideIcon> = {
   crews: HardHat,
   colors: Palette,
   blocks: MapPin,
+  requests: Inbox,
   team: Users,
 };
 
