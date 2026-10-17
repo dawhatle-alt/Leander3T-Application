@@ -52,3 +52,16 @@ npm run seed:clear   # remove all demo data — run before the Airtable import
 ```
 
 Demo sign-ins use magic links only (no passwords). Each is a plus address of the owner's Gmail, e.g. `dawhatle+l3t-ramon@gmail.com` (crew manager), `dawhatle+l3t-sam@gmail.com` (Ashton Woods builder portal), `dawhatle+l3t-gerardo@gmail.com` (supervisor). Supplier and construction-manager emails are `example.com` addresses, so no demo order can reach a real supplier.
+
+## Sign-in setup (Supabase dashboard, one time)
+
+People sign in with email + password, or with a link emailed to them. Every emailed link goes to `/auth/confirm` on this site.
+
+1. **Authentication → URL Configuration**
+   - Site URL: `https://leander3-t-application.vercel.app` (change to `https://leander3t.com` at cutover)
+   - Redirect URLs: `https://leander3-t-application.vercel.app/**`, `https://*-dawhatle-alts-projects.vercel.app/**`, `http://localhost:3000/**`
+2. **Authentication → Emails → Templates:** paste the matching file from `supabase/templates/` into *Invite user*, *Magic link*, *Reset password* and *Confirm signup*. The subjects are in `supabase/config.toml`.
+3. **Authentication → Emails → SMTP Settings:** turn on custom SMTP with Resend (host `smtp.resend.com`, port 465, user `resend`, password = a Resend API key, sender e.g. `office@leander3t.com` on a verified domain). Supabase's built-in sender only delivers to members of the Supabase team and only a few per hour.
+4. **Vercel:** `SUPABASE_SERVICE_ROLE_KEY` must be set (server-only) for invitations from `/team`.
+
+Demo sign-ins have no password. Use **Email me a sign-in link instead**, or **Forgot password?** to set one.
