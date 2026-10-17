@@ -10,7 +10,9 @@
     "typecheck": "tsc --noEmit",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "db:types": "supabase gen types typescript --project-id mbpinvgomfjmbpwyqaiv --schema public > lib/supabase/types.ts"
+    "db:types": "supabase gen types typescript --project-id mbpinvgomfjmbpwyqaiv --schema public > lib/supabase/types.ts",
+    "seed": "supabase db query --linked -f supabase/seed/demo.sql",
+    "seed:clear": "supabase db query --linked -f supabase/seed/clear-demo.sql"
   },
   "dependencies": {
     "@radix-ui/react-slot": "^1.5.0",

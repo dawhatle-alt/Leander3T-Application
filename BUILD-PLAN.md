@@ -42,7 +42,7 @@ The whole data model, before any screens. Everything in `supabase/migrations/`, 
 - [x] Triggers: ordered-date stamp, completion→status+date, address block dates, stone start/end (follows brick on jobs with stone SF, unless stone dates were set by hand)
 - [x] Storage buckets: `plans`, `photos`, `order-forms` (private; paths start with the job id; signed URLs only)
 - [x] Generated types committed to `lib/supabase/types.ts`
-- [ ] `20261017004500_consolidate_policies.sql` — performance-only cleanup (one read policy per table; access unchanged). In the repo, **not yet applied**: run `npx supabase db push`
+- [x] `20261017004500_consolidate_policies.sql` — performance-only cleanup (one read policy per table; access unchanged). Applied.
 
 **Done when:** a supervisor test user and a crew manager test user can each only read/write what the role matrix allows (a crew manager reads only their crew's jobs and creates orders only on them), verified by SQL tests against seeded users. **Met 2026-10-17:** `supabase/tests/rls_smoke_test.sql`, 30/30 checks passed against the live project, fully rolled back.
 
@@ -52,9 +52,10 @@ The whole data model, before any screens. Everything in `supabase/migrations/`, 
 
 Credible fake data so the UI can be built and demoed before migration.
 
-- [ ] Seed script in `supabase/seed/`: 5 builders with CMs, 8 suppliers, 9 users across roles plus 3 crew managers with their crews, ~60 jobs spread across subdivisions (Provence, Sonterra, Cielo East, Lagos, The Grove Church), mixed trade combinations and statuses, orders of every type, photos, a few info requests
-- [ ] Addresses, plan names, and colors match Central Texas conventions (Country Hill brick, White 4,6,8 stone, Type S — Gray mortar)
-- [ ] Idempotent: re-runnable without duplicating
+- [x] Seed script `supabase/seed/demo.sql`: 5 builders with 10 CMs, 8 suppliers (fake emails), 13 magic-link sign-ins across every role (4 admin, 4 supervisor, 1 employee, 3 crew managers, 1 Ashton Woods CM), 5 crews, 60 jobs in Provence, Sonterra, Lagos, Cielo East and The Grove Church, mixed trades and statuses, orders of all seven types, address blocks, notes, 4 info requests. **Photos are not seeded** — they need real files in storage and arrive with M4 uploads.
+- [x] Addresses, plan names, and colors match Central Texas conventions (Country Hill brick, White 4,6,8 stone, Type S — Gray mortar)
+- [x] Idempotent: re-runnable without duplicating (fixed ids; clears previous demo rows first)
+- [x] Removable: every demo row is tagged (`demo` column, or `app_metadata.demo` on sign-ins); `npm run seed:clear` removes them before the Airtable import (M10)
 
 **Done when:** `npm run seed` produces a database that looks like a real month at Leander 3T.
 
