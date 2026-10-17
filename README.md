@@ -51,7 +51,7 @@ npm run seed         # load (or reload) demo data
 npm run seed:clear   # remove all demo data — run before the Airtable import
 ```
 
-Demo sign-ins use magic links only (no passwords). Each is a plus address of the owner's Gmail, e.g. `dawhatle+l3t-ramon@gmail.com` (crew manager), `dawhatle+l3t-sam@gmail.com` (Ashton Woods builder portal), `dawhatle+l3t-gerardo@gmail.com` (supervisor). Supplier and construction-manager emails are `example.com` addresses, so no demo order can reach a real supplier.
+Demo sign-ins use magic links only (no passwords). Each is a plus address of the owner's Gmail, e.g. `dawhatle+l3t-ramon@gmail.com` (crew manager). The demo administrator is `dawhatle@gmail.com`, so it works with Supabase's built-in email before Resend is set up. Others:, `dawhatle+l3t-sam@gmail.com` (Ashton Woods builder portal), `dawhatle+l3t-gerardo@gmail.com` (supervisor). Supplier and construction-manager emails are `example.com` addresses, so no demo order can reach a real supplier.
 
 ## Sign-in setup (Supabase dashboard, one time)
 

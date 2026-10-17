@@ -97,7 +97,8 @@ with people (slug, full_name, role, builder_slug, phone) as (values
   )
   select md5('l3t-demo:user:' || slug)::uuid,
          '00000000-0000-0000-0000-000000000000', 'authenticated', 'authenticated',
-         'dawhatle+l3t-' || slug || '@gmail.com', now(),
+         case when slug = 'admin' then 'dawhatle@gmail.com'  -- reachable by Supabase's built-in email
+              else 'dawhatle+l3t-' || slug || '@gmail.com' end, now(),
          jsonb_build_object('provider', 'email', 'providers', jsonb_build_array('email'),
                             'role', role, 'demo', true)
            || case when builder_slug is null then '{}'::jsonb
