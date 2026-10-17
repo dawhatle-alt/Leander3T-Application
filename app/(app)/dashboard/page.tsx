@@ -104,7 +104,28 @@ export default async function DashboardPage() {
   // Crew manager material requests the office hasn't placed yet.
   const crewRequests = pending.filter((o) => o.requestedBy && o.job);
 
+  const { data: jobRequests } = office
+    ? await supabase
+        .from("job_requests")
+        .select(
+          "id, kind, house_number, street, created_at, builders(name), jobs(property_address)",
+        )
+        .eq("status", "submitted")
+        .order("created_at", { ascending: true })
+    : { data: [] };
+
   const attention: Attention[] = [
+    ...(jobRequests ?? []).map((r) => ({
+      key: `j-${r.id}`,
+      tone: "red" as const,
+      title:
+        r.kind === "new_job"
+          ? `New job request from ${r.builders?.name ?? "a builder"} — ${r.house_number} ${r.street}`
+          : `Question from ${r.builders?.name ?? "a builder"} — ${r.jobs?.property_address ?? ""}`,
+      sub: `Sent ${stamp(r.created_at)}`,
+      href: "/jobs/requests",
+      action: "Review",
+    })),
     ...(webRequests.data ?? []).map((r) => ({
       key: `w-${r.id}`,
       tone: "red" as const,

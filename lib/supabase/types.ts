@@ -527,6 +527,135 @@ export type Database = {
           },
         ]
       }
+      job_requests: {
+        Row: {
+          area: string | null
+          brick_color: string | null
+          builder_id: string
+          construction_manager_id: string | null
+          created_at: string
+          elevation: string | null
+          house_number: string | null
+          id: string
+          job_id: string | null
+          kind: Database["public"]["Enums"]["job_request_kind"]
+          lot_swing: Database["public"]["Enums"]["lot_swing"] | null
+          message: string | null
+          mortar_color: string | null
+          plan_name: string | null
+          plan_number: string | null
+          request_number: number
+          response: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: Database["public"]["Enums"]["job_request_status"]
+          stone_color: string | null
+          street: string | null
+          stucco_colors: string | null
+          subdivision: string | null
+          submitted_by: string | null
+          trades: Database["public"]["Enums"]["trade"][]
+          updated_at: string
+          wanted_by: string | null
+        }
+        Insert: {
+          area?: string | null
+          brick_color?: string | null
+          builder_id: string
+          construction_manager_id?: string | null
+          created_at?: string
+          elevation?: string | null
+          house_number?: string | null
+          id?: string
+          job_id?: string | null
+          kind?: Database["public"]["Enums"]["job_request_kind"]
+          lot_swing?: Database["public"]["Enums"]["lot_swing"] | null
+          message?: string | null
+          mortar_color?: string | null
+          plan_name?: string | null
+          plan_number?: string | null
+          request_number?: number
+          response?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: Database["public"]["Enums"]["job_request_status"]
+          stone_color?: string | null
+          street?: string | null
+          stucco_colors?: string | null
+          subdivision?: string | null
+          submitted_by?: string | null
+          trades?: Database["public"]["Enums"]["trade"][]
+          updated_at?: string
+          wanted_by?: string | null
+        }
+        Update: {
+          area?: string | null
+          brick_color?: string | null
+          builder_id?: string
+          construction_manager_id?: string | null
+          created_at?: string
+          elevation?: string | null
+          house_number?: string | null
+          id?: string
+          job_id?: string | null
+          kind?: Database["public"]["Enums"]["job_request_kind"]
+          lot_swing?: Database["public"]["Enums"]["lot_swing"] | null
+          message?: string | null
+          mortar_color?: string | null
+          plan_name?: string | null
+          plan_number?: string | null
+          request_number?: number
+          response?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: Database["public"]["Enums"]["job_request_status"]
+          stone_color?: string | null
+          street?: string | null
+          stucco_colors?: string | null
+          subdivision?: string | null
+          submitted_by?: string | null
+          trades?: Database["public"]["Enums"]["trade"][]
+          updated_at?: string
+          wanted_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "job_requests_builder_id_fkey"
+            columns: ["builder_id"]
+            isOneToOne: false
+            referencedRelation: "builders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "job_requests_construction_manager_id_fkey"
+            columns: ["construction_manager_id"]
+            isOneToOne: false
+            referencedRelation: "construction_managers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "job_requests_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "jobs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "job_requests_reviewed_by_fkey"
+            columns: ["reviewed_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "job_requests_submitted_by_fkey"
+            columns: ["submitted_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       jobs: {
         Row: {
           additional_notes: string | null
@@ -1692,7 +1821,14 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      portal_contacts: {
+        Args: { p_builder?: string }
+        Returns: {
+          full_name: string
+          homes: number
+          phone: string
+        }[]
+      }
     }
     Enums: {
       address_block_status: "none" | "ordered" | "delivered"
@@ -1705,6 +1841,8 @@ export type Database = {
         | "color_selection"
         | "order_form"
         | "other"
+      job_request_kind: "new_job" | "update"
+      job_request_status: "submitted" | "approved" | "declined" | "answered"
       job_status: "new" | "in_progress" | "completed"
       lot_swing: "right" | "left" | "other"
       order_form_layout: "masonry" | "stucco" | "paint"
@@ -1857,6 +1995,8 @@ export const Constants = {
         "order_form",
         "other",
       ],
+      job_request_kind: ["new_job", "update"],
+      job_request_status: ["submitted", "approved", "declined", "answered"],
       job_status: ["new", "in_progress", "completed"],
       lot_swing: ["right", "left", "other"],
       order_form_layout: ["masonry", "stucco", "paint"],

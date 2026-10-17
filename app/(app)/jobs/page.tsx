@@ -106,6 +106,11 @@ export default async function JobsPage({
       : await query.limit(BOARD_LIMIT * 3);
 
   const total = count ?? 0;
+  const { count: waitingCount } = await supabase
+    .from("job_requests")
+    .select("id", { count: "exact", head: true })
+    .eq("status", "submitted");
+  const waiting = waitingCount ?? 0;
   const pages = Math.max(1, Math.ceil(total / PAGE_SIZE));
 
   return (
@@ -114,11 +119,24 @@ export default async function JobsPage({
         title="Jobs"
         sub={`${total.toLocaleString()} ${status ? STATUS_LABEL[status].toLowerCase() + " " : ""}job${total === 1 ? "" : "s"}${mine ? " assigned to you" : ""}${q ? ` matching “${q}”` : ""}.`}
       >
-        {canCreateJobs(me) && (
-          <Button asChild variant="fire" size="sm">
-            <Link href="/jobs/new">+ New Job</Link>
-          </Button>
-        )}
+        <div className="flex flex-wrap items-center gap-2.5">
+          <Link
+            href="/jobs/requests"
+            className="inline-flex items-center gap-2 rounded-md border-[1.5px] border-mortar-2 bg-paper px-4 py-2 text-[14px] font-bold hover:border-flame hover:text-flame"
+          >
+            Builder Requests
+            {waiting > 0 && (
+              <span className="rounded-full bg-flame px-2 py-0.5 font-mono text-[11px] text-white">
+                {waiting}
+              </span>
+            )}
+          </Link>
+          {canCreateJobs(me) && (
+            <Button asChild variant="fire" size="sm">
+              <Link href="/jobs/new">+ New Job</Link>
+            </Button>
+          )}
+        </div>
       </PageHead>
 
       <div className="mb-[22px] flex flex-wrap items-center gap-3.5">

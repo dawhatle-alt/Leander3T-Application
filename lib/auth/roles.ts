@@ -42,7 +42,8 @@ const AREAS: { prefix: string; roles: AppRole[] }[] = [
   { prefix: "/orders", roles: TEAM },
   { prefix: "/team", roles: TEAM },
   { prefix: "/crew", roles: ["crew_manager"] },
-  { prefix: "/portal", roles: ["builder"] },
+  // Admins may open the portal to preview what a builder sees.
+  { prefix: "/portal", roles: ["builder", "admin"] },
   { prefix: "/profile", roles: [...ROLES] },
   { prefix: "/update-password", roles: [...ROLES] },
 ];
