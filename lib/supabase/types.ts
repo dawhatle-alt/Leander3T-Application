@@ -1,4 +1,3 @@
-// Generated from the Leander3T database. Do not edit by hand: run `npm run db:types`.
 export type Json =
   | string
   | number
@@ -173,6 +172,7 @@ export type Database = {
           contact_name: string | null
           contact_phone: string | null
           created_at: string
+          demo: boolean
           id: string
           name: string
           notes: string | null
@@ -185,6 +185,7 @@ export type Database = {
           contact_name?: string | null
           contact_phone?: string | null
           created_at?: string
+          demo?: boolean
           id?: string
           name: string
           notes?: string | null
@@ -197,6 +198,7 @@ export type Database = {
           contact_name?: string | null
           contact_phone?: string | null
           created_at?: string
+          demo?: boolean
           id?: string
           name?: string
           notes?: string | null
@@ -209,6 +211,7 @@ export type Database = {
           airtable_id: string | null
           builder_id: string | null
           created_at: string
+          demo: boolean
           email: string | null
           id: string
           name: string
@@ -219,6 +222,7 @@ export type Database = {
           airtable_id?: string | null
           builder_id?: string | null
           created_at?: string
+          demo?: boolean
           email?: string | null
           id?: string
           name: string
@@ -229,6 +233,7 @@ export type Database = {
           airtable_id?: string | null
           builder_id?: string | null
           created_at?: string
+          demo?: boolean
           email?: string | null
           id?: string
           name?: string
@@ -250,6 +255,7 @@ export type Database = {
           active: boolean
           created_at: string
           crew_manager_id: string | null
+          demo: boolean
           id: string
           name: string
           trade: Database["public"]["Enums"]["trade"]
@@ -259,6 +265,7 @@ export type Database = {
           active?: boolean
           created_at?: string
           crew_manager_id?: string | null
+          demo?: boolean
           id?: string
           name: string
           trade: Database["public"]["Enums"]["trade"]
@@ -268,6 +275,7 @@ export type Database = {
           active?: boolean
           created_at?: string
           crew_manager_id?: string | null
+          demo?: boolean
           id?: string
           name?: string
           trade?: Database["public"]["Enums"]["trade"]
@@ -290,6 +298,7 @@ export type Database = {
           company_name: string | null
           company_size: string | null
           created_at: string
+          demo: boolean
           email: string | null
           id: string
           name: string
@@ -304,6 +313,7 @@ export type Database = {
           company_name?: string | null
           company_size?: string | null
           created_at?: string
+          demo?: boolean
           email?: string | null
           id?: string
           name: string
@@ -318,6 +328,7 @@ export type Database = {
           company_name?: string | null
           company_size?: string | null
           created_at?: string
+          demo?: boolean
           email?: string | null
           id?: string
           name?: string
@@ -534,6 +545,7 @@ export type Database = {
           created_at: string
           created_by: string | null
           date_received: string | null
+          demo: boolean
           elevation: string | null
           fireplace_notes: string | null
           has_fireplace: boolean
@@ -593,6 +605,7 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           date_received?: string | null
+          demo?: boolean
           elevation?: string | null
           fireplace_notes?: string | null
           has_fireplace?: boolean
@@ -652,6 +665,7 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           date_received?: string | null
+          demo?: boolean
           elevation?: string | null
           fireplace_notes?: string | null
           has_fireplace?: boolean
@@ -1554,6 +1568,7 @@ export type Database = {
           active: boolean
           airtable_id: string | null
           created_at: string
+          demo: boolean
           email: string | null
           id: string
           name: string
@@ -1565,6 +1580,7 @@ export type Database = {
           active?: boolean
           airtable_id?: string | null
           created_at?: string
+          demo?: boolean
           email?: string | null
           id?: string
           name: string
@@ -1576,6 +1592,7 @@ export type Database = {
           active?: boolean
           airtable_id?: string | null
           created_at?: string
+          demo?: boolean
           email?: string | null
           id?: string
           name?: string

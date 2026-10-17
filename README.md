@@ -41,3 +41,14 @@ npm run db:types              # regenerate lib/supabase/types.ts
 ```
 
 `supabase/tests/rls_smoke_test.sql` checks what each role can see and change. Run it in the Supabase SQL editor; it rolls itself back and reports `RLS SMOKE TEST: n/n passed`.
+
+## Demo data
+
+`supabase/seed/demo.sql` loads a credible month at Leander 3T: 5 builders, 60 jobs across five subdivisions, orders of every type, and 13 demo sign-ins covering every role. It is safe to re-run.
+
+```bash
+npm run seed         # load (or reload) demo data
+npm run seed:clear   # remove all demo data — run before the Airtable import
+```
+
+Demo sign-ins use magic links only (no passwords). Each is a plus address of the owner's Gmail, e.g. `dawhatle+l3t-ramon@gmail.com` (crew manager), `dawhatle+l3t-sam@gmail.com` (Ashton Woods builder portal), `dawhatle+l3t-gerardo@gmail.com` (supervisor). Supplier and construction-manager emails are `example.com` addresses, so no demo order can reach a real supplier.
