@@ -12,13 +12,13 @@ Work milestones in order. Each has a definition of done — don't move on until 
 
 Set up the project so every later milestone is mechanical.
 
-- [ ] `create-next-app` with TypeScript, App Router, Tailwind; ESLint + Prettier configured
-- [ ] shadcn/ui initialized; theme mapped to the Coursework tokens in `CLAUDE.md`
-- [ ] Fonts wired (Barlow Condensed, Barlow, IBM Plex Mono) via `next/font`
-- [ ] Supabase project created; local dev via Supabase CLI; `.env.local` + `.env.example`
-- [ ] Supabase server/browser client helpers in `lib/supabase/`
-- [ ] Vercel project connected to the GitHub repo; preview deploys on PRs
-- [ ] `npm run typecheck`, `lint`, `build` all pass in CI
+- [x] `create-next-app` with TypeScript, App Router, Tailwind; ESLint + Prettier configured
+- [x] shadcn/ui initialized; theme mapped to the Coursework tokens in `CLAUDE.md` (`components.json`, `app/globals.css`, `components/ui/button.tsx`)
+- [x] Fonts wired (Barlow Condensed, Barlow, IBM Plex Mono) via `next/font`
+- [x] Supabase project created (`Leander3T`, `mbpinvgomfjmbpwyqaiv`); local dev via Supabase CLI (`supabase/config.toml`); `.env.example` (copy to `.env.local`)
+- [x] Supabase server/browser client helpers in `lib/supabase/`
+- [ ] Vercel project connected to the GitHub repo; preview deploys on PRs — **needs Darrell**: import the repo in Vercel and add the env vars from `.env.example`
+- [x] `npm run typecheck`, `lint`, `format:check`, `build` all run in CI (`.github/workflows/ci.yml`)
 
 **Done when:** a placeholder page deploys to a Vercel preview URL with brand fonts and colors applied.
 
@@ -26,23 +26,25 @@ Set up the project so every later milestone is mechanical.
 
 ## M1 — Schema and security
 
-The whole data model, before any screens. Everything in `supabase/migrations/`.
+The whole data model, before any screens. Everything in `supabase/migrations/`, applied to `Leander3T` on 2026-10-17.
 
-- [ ] `profiles` (id → auth.users, full_name, role enum: admin/supervisor/employee/crew_manager/builder, builder_id nullable, crew_id nullable, active)
-- [ ] `builders`, `construction_managers`, `suppliers`
-- [ ] `jobs` — house_number, street, generated `property_address`, subdivision, area, elevation, plan_name, builder_id, construction_manager_id, status enum, per-trade spec columns (brick/stone/stucco: sqft, color, mortar_color, drop_ft, start/end dates, crew), completion_percent, job_completed_date, notes
-- [ ] `job_supervisors` join table (a job can have multiple supervisors)
-- [ ] `crews` (name, trade, crew_manager profile); the per-trade crew columns on `jobs` reference `crews.id`, replacing the legacy crew select fields
-- [ ] Order tables: `sand_orders`, `mortar_orders`, `lintel_orders`, `arch_lintel_orders`, `rock_orders`, `stucco_material_orders`, `paint_orders` — each with job_id, supplier_id, order_number, ordered bool, ordered_date, requested_delivery_date, notes, created_by, plus type-specific columns (see glossary in `CLAUDE.md`)
-- [ ] `address_block_orders`, `job_photos`, `job_documents`, `info_requests`
-- [ ] `payroll_archive` tables — imported later, read-only, no UI
-- [ ] Lookup tables for select values (mortar colors, brick colors) — **consolidate legacy typos** ("White"/"whtie"/"whiote" → one value)
-- [ ] RLS enabled on every table + policies per the role matrix in `CLAUDE.md`
-- [ ] Triggers: ordered-date stamp, completion→status+date, address block dates, stone start/end
-- [ ] Storage buckets: `plans`, `photos`, `order-forms` (private; signed URLs only)
-- [ ] Generated types committed to `lib/supabase/types.ts`
+- [x] `profiles` (id → auth.users, full_name, role enum: admin/supervisor/employee/crew_manager/builder, builder_id nullable, active). A new auth user gets a profile automatically; role and builder come only from server-set `app_metadata`.
+- [x] `builders`, `construction_managers`, `suppliers`
+- [x] `jobs` — house_number, street, generated `property_address`, subdivision, area (+ `area_directions` split from the legacy field), elevation, plan_name, builder_id, construction_manager_id, status enum, per-trade spec columns (brick/stone/stucco: sqft, color, mortar_color, drop_ft, start/end dates, crew), completion_percent, job_completed_date, notes
+- [x] `job_assignments` join table (job, person, kind = supervisor | employee) — a job can have several supervisors, and employees are assigned the same way. Replaces the planned `job_supervisors`.
+- [x] `crews` (name, trade, `crew_manager_id`); the per-trade crew columns on `jobs` reference `crews.id`. The crew link lives on `crews`, not on `profiles`, so one crew manager can lead more than one crew.
+- [x] Order tables: `sand_orders`, `mortar_orders`, `lintel_orders`, `arch_lintel_orders`, `rock_orders`, `stucco_material_orders`, `paint_orders` — each with job_id, supplier_id, order_number, ordered bool, ordered_date, requested_delivery_date, notes, created_by, plus type-specific columns
+- [x] Stucco line items in `stucco_order_items` (quantity **and unit**) against a `stucco_items` catalog of 18 items — legacy rows mix units ("2" cases vs "60 pieces") and both must survive the import
+- [x] `address_block_orders`, `job_photos`, `job_documents`, `job_notes`, `info_requests`
+- [x] `payroll_archive_*` tables — imported later, read-only (admins select; no write policies), no UI
+- [x] Lookup tables for select values (`mortar_colors` seeded with 7 clean values, `brick_colors`) — legacy typos get mapped on import
+- [x] RLS enabled on every table + policies per the role matrix in `CLAUDE.md`. Access helpers live in a `private` schema so they can't be called through the API.
+- [x] Triggers: ordered-date stamp, completion→status+date, address block dates, stone start/end (follows brick on jobs with stone SF, unless stone dates were set by hand)
+- [x] Storage buckets: `plans`, `photos`, `order-forms` (private; paths start with the job id; signed URLs only)
+- [x] Generated types committed to `lib/supabase/types.ts`
+- [ ] `20261017004500_consolidate_policies.sql` — performance-only cleanup (one read policy per table; access unchanged). In the repo, **not yet applied**: run `npx supabase db push`
 
-**Done when:** a supervisor test user and a crew manager test user can each only read/write what the role matrix allows (a crew manager reads only their crew's jobs and creates orders only on them), verified by SQL tests against seeded users.
+**Done when:** a supervisor test user and a crew manager test user can each only read/write what the role matrix allows (a crew manager reads only their crew's jobs and creates orders only on them), verified by SQL tests against seeded users. **Met 2026-10-17:** `supabase/tests/rls_smoke_test.sql`, 30/30 checks passed against the live project, fully rolled back.
 
 ---
 
