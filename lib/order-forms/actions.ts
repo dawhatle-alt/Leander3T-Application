@@ -85,7 +85,8 @@ async function produce(opts: {
   let pdf: Uint8Array;
   try {
     pdf = await render(built.data);
-  } catch {
+  } catch (err) {
+    console.error("order form render failed", err);
     return { error: "The PDF couldn't be created. Try again." };
   }
 
