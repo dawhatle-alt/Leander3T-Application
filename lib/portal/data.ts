@@ -29,6 +29,16 @@ export function todayCentral(offsetDays = 0) {
 export const md = (d: string | null | undefined) =>
   d ? `${d.slice(5, 7)}/${d.slice(8, 10)}` : "";
 
+/** Timestamp → "07/08" in Central time (not the UTC date). */
+export const mdTs = (ts: string | null | undefined) =>
+  ts
+    ? new Intl.DateTimeFormat("en-US", {
+        month: "2-digit",
+        day: "2-digit",
+        timeZone: "America/Chicago",
+      }).format(new Date(ts))
+    : "";
+
 type Home = Record<string, unknown> & {
   id: string;
   status: HomeStatus;

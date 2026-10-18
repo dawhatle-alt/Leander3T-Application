@@ -4,7 +4,7 @@ import { Notice } from "@/components/auth/form-bits";
 import { PreviewBar } from "@/components/portal/preview-bar";
 import { Button } from "@/components/ui/button";
 import { portalContext } from "@/lib/portal/context";
-import { md } from "@/lib/portal/data";
+import { mdTs } from "@/lib/portal/data";
 import { createClient } from "@/lib/supabase/server";
 import { cn } from "@/lib/utils";
 
@@ -93,7 +93,7 @@ export default async function RequestsPage({
                     </span>
                   </div>
                   <div className="font-mono text-[11.5px] text-ink-muted">
-                    SENT {md(r.created_at.slice(0, 10))}
+                    SENT {mdTs(r.created_at)}
                     {r.subdivision ? ` · ${r.subdivision.toUpperCase()}` : ""}
                   </div>
                   {r.message && (
@@ -105,9 +105,7 @@ export default async function RequestsPage({
                     <div className="mt-2 rounded-md border-l-[3px] border-success bg-[#2f6b4514] px-3 py-2 text-[14px]">
                       <span className="font-mono text-[11px] tracking-[0.1em] text-success uppercase">
                         Leander 3T replied
-                        {r.reviewed_at
-                          ? ` ${md(r.reviewed_at.slice(0, 10))}`
-                          : ""}
+                        {r.reviewed_at ? ` ${mdTs(r.reviewed_at)}` : ""}
                       </span>
                       <div className="whitespace-pre-wrap">{r.response}</div>
                     </div>

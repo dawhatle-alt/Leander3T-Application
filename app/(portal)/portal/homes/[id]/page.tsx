@@ -17,6 +17,7 @@ import {
   homeMeta,
   loadHomePhotos,
   md,
+  mdTs,
   specChips,
   tradeProgress,
 } from "@/lib/portal/data";
@@ -219,15 +220,13 @@ export default async function PortalHome({
                     {r.message}
                   </div>
                   <div className="font-mono text-[11.5px] text-ink-muted">
-                    #{r.request_number} · ASKED {md(r.created_at.slice(0, 10))}
+                    #{r.request_number} · ASKED {mdTs(r.created_at)}
                   </div>
                   {r.response ? (
                     <div className="mt-2 rounded-md border-l-[3px] border-success bg-[#2f6b4514] px-3 py-2 text-[14px]">
                       <span className="font-mono text-[11px] tracking-[0.1em] text-success uppercase">
                         Leander 3T replied
-                        {r.reviewed_at
-                          ? ` ${md(r.reviewed_at.slice(0, 10))}`
-                          : ""}
+                        {r.reviewed_at ? ` ${mdTs(r.reviewed_at)}` : ""}
                       </span>
                       <div className="whitespace-pre-wrap">{r.response}</div>
                     </div>
