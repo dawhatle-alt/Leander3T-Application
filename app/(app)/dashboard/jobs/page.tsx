@@ -8,7 +8,11 @@ import {
 } from "@/components/dashboard/job-charts";
 import { PageHead, Panel, Stat } from "@/components/shell/page-bits";
 import { requireProfile } from "@/lib/auth/session";
-import { longDate } from "@/lib/jobs/format";
+import {
+  RANGES,
+  rangeText as describeRange,
+  resolveRange,
+} from "@/lib/dashboard/range";
 import { createClient } from "@/lib/supabase/server";
 
 export const metadata: Metadata = { title: "Job Dashboard — Leander 3T" };
@@ -16,16 +20,6 @@ export const metadata: Metadata = { title: "Job Dashboard — Leander 3T" };
 // Replaces the Airtable "Job Information → Job Dashboard" interface page:
 // job totals, active jobs by supervisor, jobs by builder, builder × status,
 // and a received-vs-completed trend. Filtered by Date Received.
-
-const TZ = "America/Chicago";
-
-type Range = "year" | "last-year" | "12m" | "all" | "custom";
-const RANGES: { key: Exclude<Range, "custom">; label: string }[] = [
-  { key: "year", label: "This Year" },
-  { key: "last-year", label: "Last Year" },
-  { key: "12m", label: "Last 12 Months" },
-  { key: "all", label: "All Time" },
-];
 
 type Data = {
   totals: {
@@ -47,48 +41,6 @@ type Data = {
   trend: { bucket: string; received: number; completed: number }[];
   bucket: "week" | "month";
 };
-
-const ISO = /^\d{4}-\d{2}-\d{2}$/;
-
-function today() {
-  // en-CA formats as YYYY-MM-DD.
-  return new Intl.DateTimeFormat("en-CA", { timeZone: TZ }).format(new Date());
-}
-
-function resolve(sp: { range?: string; from?: string; to?: string }) {
-  const now = today();
-  const year = Number(now.slice(0, 4));
-  const from = sp.from && ISO.test(sp.from) ? sp.from : undefined;
-  const to = sp.to && ISO.test(sp.to) ? sp.to : undefined;
-  if (sp.range === "custom" || (!sp.range && (from || to)))
-    return { range: "custom" as Range, from, to };
-  switch (sp.range) {
-    case "last-year":
-      return {
-        range: "last-year" as Range,
-        from: `${year - 1}-01-01`,
-        to: `${year - 1}-12-31`,
-      };
-    case "12m": {
-      const d = new Date(`${now}T00:00:00Z`);
-      d.setUTCFullYear(d.getUTCFullYear() - 1);
-      d.setUTCDate(d.getUTCDate() + 1);
-      return {
-        range: "12m" as Range,
-        from: d.toISOString().slice(0, 10),
-        to: now,
-      };
-    }
-    case "all":
-      return { range: "all" as Range, from: undefined, to: undefined };
-    default:
-      return {
-        range: "year" as Range,
-        from: `${year}-01-01`,
-        to: `${year}-12-31`,
-      };
-  }
-}
 
 function days(from?: string, to?: string) {
   if (!from) return Infinity;
@@ -128,7 +80,7 @@ export default async function JobDashboardPage({
     redirect("/dashboard");
 
   const sp = await searchParams;
-  const { range, from, to } = resolve(sp);
+  const { range, from, to } = resolveRange(sp);
   const bucket = days(from, to) <= 400 ? "week" : "month";
 
   const supabase = await createClient();
@@ -154,14 +106,7 @@ export default async function JobDashboardPage({
     completed: p.completed,
   }));
 
-  const rangeText =
-    from && to
-      ? `${longDate(from)} – ${longDate(to)}`
-      : from
-        ? `Since ${longDate(from)}`
-        : to
-          ? `Through ${longDate(to)}`
-          : "All time";
+  const rangeText = describeRange(from, to);
 
   return (
     <>
