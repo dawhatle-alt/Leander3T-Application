@@ -1821,6 +1821,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      job_dashboard: {
+        Args: { p_bucket?: string; p_from?: string; p_to?: string }
+        Returns: Json
+      }
       portal_contacts: {
         Args: { p_builder?: string }
         Returns: {

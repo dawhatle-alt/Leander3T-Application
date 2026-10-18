@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   Building2,
+  ChartPie,
   ClipboardList,
   HardHat,
   House,
@@ -19,6 +20,7 @@ import { cn } from "@/lib/utils";
 
 const ICONS: Record<string, LucideIcon> = {
   dashboard: LayoutDashboard,
+  charts: ChartPie,
   jobs: House,
   orders: ClipboardList,
   builders: Building2,
@@ -34,12 +36,16 @@ export type NavItem = { href: string; label: string; icon: keyof typeof ICONS };
 
 export function SideNav({ items }: { items: NavItem[] }) {
   const pathname = usePathname();
+  // The most specific matching item wins, so /dashboard/jobs lights up
+  // "Job Dashboard" and not "Dashboard" as well.
+  const current = items
+    .filter((i) => pathname === i.href || pathname.startsWith(i.href + "/"))
+    .sort((a, b) => b.href.length - a.href.length)[0]?.href;
   return (
     <nav className="contents" aria-label="Main">
       {items.map((item) => {
         const Icon = ICONS[item.icon] ?? House;
-        const active =
-          pathname === item.href || pathname.startsWith(item.href + "/");
+        const active = item.href === current;
         return (
           <Link
             key={item.href}

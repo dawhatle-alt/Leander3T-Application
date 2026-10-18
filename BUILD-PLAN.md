@@ -124,6 +124,7 @@ This replaces Documint and the email-chain workflow.
 ## M7 — Dashboard and admin ✅
 
 - [x] `/dashboard` — stats (active jobs, new job requests, orders pending review, completed), the four workflow cards (New Job, Update Job, Request Materials, My Jobs → `/jobs?mine=1`), Needs Attention (order forms awaiting review + crew manager material requests), Active Jobs by Supervisor
+- [x] `/dashboard/jobs` — Job Dashboard (replaces the Airtable "Job Information → Job Dashboard" page), Administration and supervisors: Total / Active / Completed, Active Jobs by Supervisor and Jobs by Builder donuts, Builders × Status table, Received vs Completed trend (weekly; monthly past ~13 months). Filtered by Date Received (This Year default, Last Year, Last 12 Months, All Time, custom). Aggregated in Postgres by `job_dashboard()` (security invoker, so row-level security applies). Charts use Recharts (approved 2026-10-17)
 - [x] `/admin/builders` with each builder's construction managers (`/admin/construction-managers` redirects there), `/admin/suppliers` (incl. which order types each supplies), `/admin/crews`, `/admin/colors` (brick and mortar picklists)
 - [x] People management on `/team`: invite, edit name/phone/role/builder link/construction-manager record, order-form reviewer flag, switch access off/on. Admins can't demote or switch off themselves
 - [x] `/admin/address-blocks` tracker (Not Ordered / Ordered / Delivered, one-click status, dates stamp in the database) plus the same control on each job page
