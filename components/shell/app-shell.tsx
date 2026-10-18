@@ -17,6 +17,7 @@ export function AppShell({
 }) {
   const items: NavItem[] = [
     { href: "/dashboard", label: "Dashboard", icon: "dashboard" },
+    { href: "/dashboard/board", label: "Job Board", icon: "board" },
     ...(profile.role === "admin" || profile.role === "supervisor"
       ? ([
           { href: "/dashboard/jobs", label: "Job Dashboard", icon: "charts" },

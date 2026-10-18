@@ -6,6 +6,7 @@ import {
   Building2,
   ChartPie,
   ClipboardList,
+  SquareKanban,
   HardHat,
   House,
   Inbox,
@@ -21,6 +22,7 @@ import { cn } from "@/lib/utils";
 const ICONS: Record<string, LucideIcon> = {
   dashboard: LayoutDashboard,
   charts: ChartPie,
+  board: SquareKanban,
   jobs: House,
   orders: ClipboardList,
   builders: Building2,
