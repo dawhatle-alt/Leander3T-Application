@@ -168,7 +168,7 @@ export function Trend({ data }: { data: TrendPoint[] }) {
             }}
           />
           <Line
-            type="monotone"
+            type="linear"
             dataKey="received"
             name="Received"
             stroke="#E4590F"
@@ -178,7 +178,7 @@ export function Trend({ data }: { data: TrendPoint[] }) {
             isAnimationActive={false}
           />
           <Line
-            type="monotone"
+            type="linear"
             dataKey="completed"
             name="Completed"
             stroke="#2F6B45"
