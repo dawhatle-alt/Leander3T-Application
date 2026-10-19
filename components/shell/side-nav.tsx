@@ -8,7 +8,6 @@ import {
   ClipboardList,
   SquareKanban,
   HardHat,
-  History,
   House,
   Inbox,
   LayoutDashboard,
@@ -33,7 +32,6 @@ const ICONS: Record<string, LucideIcon> = {
   blocks: MapPin,
   requests: Inbox,
   team: Users,
-  activity: History,
 };
 
 export type NavItem = { href: string; label: string; icon: keyof typeof ICONS };

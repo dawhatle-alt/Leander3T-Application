@@ -41,7 +41,6 @@ export function AppShell({
             label: "Address Blocks",
             icon: "blocks",
           },
-          { href: "/admin/activity", label: "Activity", icon: "activity" },
         ] satisfies NavItem[])
       : []),
     { href: "/team", label: "Team", icon: "team" },
