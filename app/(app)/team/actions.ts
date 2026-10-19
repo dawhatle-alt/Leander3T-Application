@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
+import { logAccess } from "@/lib/audit/access";
 import { siteOrigin } from "@/lib/auth/origin";
 import { ROLES, ROLE_LABEL, type AppRole } from "@/lib/auth/roles";
 import { getSessionProfile } from "@/lib/auth/session";
@@ -39,7 +40,7 @@ export async function invitePerson(
       error: "Invitations aren't switched on yet: the server key is missing.",
     };
   }
-  const admin = createAdminClient();
+  const admin = createAdminClient(me.id);
 
   const { data, error } = await admin.auth.admin.inviteUserByEmail(email, {
     data: { full_name: fullName },
@@ -69,6 +70,14 @@ export async function invitePerson(
     };
   }
 
+  await logAccess({
+    event: "invited",
+    method: "invite",
+    userId,
+    email,
+    actor: { id: me.id, name: me.fullName },
+    detail: ROLE_LABEL[role],
+  });
   revalidatePath("/team");
   return { message: `Invitation sent to ${email} as ${ROLE_LABEL[role]}.` };
 }
@@ -170,7 +179,7 @@ export async function setPersonPassword(input: {
       error: "Passwords can't be set yet: the server key is missing.",
     };
 
-  const admin = createAdminClient();
+  const admin = createAdminClient(me.id);
   const { error } = await admin.auth.admin.updateUserById(input.id, {
     password: parsed.data.password,
     // An invited person who never opened their email can sign in now.
@@ -185,6 +194,12 @@ export async function setPersonPassword(input: {
           : "The password couldn't be set. Try again.",
     };
 
+  await logAccess({
+    event: "password_set",
+    method: "password",
+    userId: input.id,
+    actor: { id: me.id, name: me.fullName },
+  });
   return {
     message:
       "Password set. They'll be asked to choose their own the next time they sign in.",

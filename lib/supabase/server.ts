@@ -34,10 +34,17 @@ export async function createClient() {
 
 // Service-role client: bypasses row-level security. Server-only, for trusted
 // jobs such as order-form generation and the public request-info form.
-export function createAdminClient() {
+//
+// Pass `actorId` (the signed-in administrator) when the write is done on
+// someone's behalf, so the change log records who did it. The database trusts
+// that header only on requests that carry the server key.
+export function createAdminClient(actorId?: string) {
   return createSupabaseClient<Database>(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.SUPABASE_SERVICE_ROLE_KEY!,
-    { auth: { persistSession: false, autoRefreshToken: false } },
+    {
+      auth: { persistSession: false, autoRefreshToken: false },
+      ...(actorId ? { global: { headers: { "x-actor-id": actorId } } } : {}),
+    },
   );
 }
