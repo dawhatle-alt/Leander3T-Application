@@ -2,6 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { safeNext } from "@/lib/auth/roles";
+import { logAccess } from "@/lib/audit/access";
 import { siteOrigin } from "@/lib/auth/origin";
 import { createAdminClient, createClient } from "@/lib/supabase/server";
 import {
@@ -25,13 +26,25 @@ export async function signInWithPassword(
   if (!parsed.success) return { error: parsed.error.issues[0]?.message };
 
   const supabase = await createClient();
-  const { error } = await supabase.auth.signInWithPassword(parsed.data);
+  const { data, error } = await supabase.auth.signInWithPassword(parsed.data);
   if (error) {
+    await logAccess({
+      event: "sign_in_failed",
+      method: "password",
+      email: parsed.data.email,
+      detail: error.code ?? error.message,
+    });
     return {
       error:
         "That email and password don't match. Try again, or email yourself a sign-in link.",
     };
   }
+  await logAccess({
+    event: "sign_in",
+    method: "password",
+    userId: data.user.id,
+    email: data.user.email,
+  });
   // Middleware sends each role to its own home if this isn't theirs.
   redirect(safeNext(formData.get("next") as string) ?? "/dashboard");
 }
@@ -95,6 +108,12 @@ export async function updatePassword(
           : "Your password couldn't be saved. Open the link from your email again.",
     };
   }
+
+  await logAccess({
+    event: "password_changed",
+    userId: data.user?.id,
+    email: data.user?.email,
+  });
 
   // They've replaced a password an administrator set: stop asking.
   if (data.user?.app_metadata?.must_change_password) {

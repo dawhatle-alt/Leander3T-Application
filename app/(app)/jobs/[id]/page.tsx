@@ -27,6 +27,8 @@ import { GenerateFormButton } from "@/components/order-forms/generate-button";
 import { LAYOUT_TYPES } from "@/lib/order-forms/build";
 import { loadForms } from "@/lib/order-forms/data";
 import { loadOrderBoard } from "@/lib/orders/board";
+import { ChangeList } from "@/components/audit/change-list";
+import { loadChanges } from "@/lib/audit/changes";
 import { requireProfile } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
 import { cn } from "@/lib/utils";
@@ -44,8 +46,11 @@ const JOB_SELECT = `
   stone_crew:crews!jobs_stone_crew_id_fkey(name, manager:profiles(full_name)),
   stucco_crew:crews!jobs_stucco_crew_id_fkey(name, manager:profiles(full_name)),
   address_block_orders(status, ordered_date, delivered_date),
-  job_assignments(kind, profiles(full_name))
+  job_assignments(kind, profiles(full_name)),
+  updated_by_profile:profiles!jobs_updated_by_fkey(full_name)
 `;
+
+const HISTORY_LINES = 25;
 
 const DOC_KIND: Record<string, string> = {
   plans: "Plans",
@@ -72,7 +77,7 @@ export default async function JobPage({
     .maybeSingle();
   if (!job) notFound();
 
-  const [editable, board, forms, photosRes, docsRes, notesRes] =
+  const [editable, board, forms, photosRes, docsRes, notesRes, history] =
     await Promise.all([
       canEditJob(me, id),
       loadOrderBoard(me, job),
@@ -96,6 +101,10 @@ export default async function JobPage({
         .select("id, body, created_at, author_id, profiles(full_name)")
         .eq("job_id", id)
         .order("created_at", { ascending: false }),
+      // Change history is for Administration only (the database enforces it).
+      me.role === "admin"
+        ? loadChanges(supabase, { jobId: id, limit: HISTORY_LINES })
+        : null,
     ]);
 
   const photos = photosRes.data ?? [];
@@ -202,6 +211,12 @@ export default async function JobPage({
           />
         </div>
         <span className="font-display text-[26px] font-bold">{num(pct)}%</span>
+        <span className="basis-full font-mono text-[12px] text-ink-muted">
+          Last updated {stamp(job.updated_at)}
+          {job.updated_by_profile?.full_name
+            ? ` by ${job.updated_by_profile.full_name}`
+            : ""}
+        </span>
       </div>
 
       <div className="mb-[34px] grid gap-5 lg:grid-cols-3">
@@ -534,6 +549,29 @@ export default async function JobPage({
           </div>
         </section>
       </div>
+
+      {history && (
+        <section className="mb-[34px]">
+          <h2 className="section-title">
+            History <span className="chalk-line" aria-hidden="true" />
+            {history.nextBefore && (
+              <Link
+                href={`/admin/activity?job=${id}&period=all`}
+                className="count-label text-flame"
+              >
+                See all
+              </Link>
+            )}
+          </h2>
+          <div className="rounded-md border border-mortar bg-paper shadow-card">
+            <ChangeList
+              entries={history.entries}
+              showJob={false}
+              empty="No changes recorded since history started."
+            />
+          </div>
+        </section>
+      )}
     </>
   );
 }

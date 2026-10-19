@@ -14,6 +14,48 @@ export type Database = {
   }
   public: {
     Tables: {
+      access_log: {
+        Row: {
+          actor_id: string | null
+          actor_name: string | null
+          detail: string | null
+          email: string | null
+          event: string
+          id: number
+          ip: string | null
+          method: string | null
+          occurred_at: string
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          actor_id?: string | null
+          actor_name?: string | null
+          detail?: string | null
+          email?: string | null
+          event: string
+          id?: never
+          ip?: string | null
+          method?: string | null
+          occurred_at?: string
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          actor_id?: string | null
+          actor_name?: string | null
+          detail?: string | null
+          email?: string | null
+          event?: string
+          id?: never
+          ip?: string | null
+          method?: string | null
+          occurred_at?: string
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       address_block_orders: {
         Row: {
           created_at: string
@@ -142,6 +184,54 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      audit_log: {
+        Row: {
+          action: string
+          actor_id: string | null
+          actor_name: string | null
+          actor_role: Database["public"]["Enums"]["app_role"] | null
+          changes: Json | null
+          id: number
+          job_address: string | null
+          job_id: string | null
+          occurred_at: string
+          record_id: string
+          record_label: string | null
+          snapshot: Json | null
+          table_name: string
+        }
+        Insert: {
+          action: string
+          actor_id?: string | null
+          actor_name?: string | null
+          actor_role?: Database["public"]["Enums"]["app_role"] | null
+          changes?: Json | null
+          id?: never
+          job_address?: string | null
+          job_id?: string | null
+          occurred_at?: string
+          record_id: string
+          record_label?: string | null
+          snapshot?: Json | null
+          table_name: string
+        }
+        Update: {
+          action?: string
+          actor_id?: string | null
+          actor_name?: string | null
+          actor_role?: Database["public"]["Enums"]["app_role"] | null
+          changes?: Json | null
+          id?: never
+          job_address?: string | null
+          job_id?: string | null
+          occurred_at?: string
+          record_id?: string
+          record_label?: string | null
+          snapshot?: Json | null
+          table_name?: string
+        }
+        Relationships: []
       }
       brick_colors: {
         Row: {
@@ -716,6 +806,7 @@ export type Database = {
           supply_delivery_date: string | null
           targeted_completion_date: string | null
           updated_at: string
+          updated_by: string | null
         }
         Insert: {
           additional_notes?: string | null
@@ -776,6 +867,7 @@ export type Database = {
           supply_delivery_date?: string | null
           targeted_completion_date?: string | null
           updated_at?: string
+          updated_by?: string | null
         }
         Update: {
           additional_notes?: string | null
@@ -836,6 +928,7 @@ export type Database = {
           supply_delivery_date?: string | null
           targeted_completion_date?: string | null
           updated_at?: string
+          updated_by?: string | null
         }
         Relationships: [
           {
@@ -899,6 +992,13 @@ export type Database = {
             columns: ["stucco_crew_id"]
             isOneToOne: false
             referencedRelation: "crews"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "jobs_updated_by_fkey"
+            columns: ["updated_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
         ]
@@ -1818,7 +1918,16 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      last_sign_ins: {
+        Row: {
+          ip: string | null
+          method: string | null
+          occurred_at: string | null
+          user_agent: string | null
+          user_id: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       job_dashboard: {
