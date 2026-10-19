@@ -417,6 +417,15 @@ export default async function JobPage({
           {counts.total} orders · {counts.placed} placed ·{" "}
           {counts.total - counts.placed} draft
         </span>
+        {(me.role === "admin" || me.role === "supervisor") &&
+          counts.total > 0 && (
+            <Link
+              href={`/orders?job=${id}`}
+              className="ml-auto font-mono text-[12px] font-semibold tracking-[0.08em] text-flame uppercase hover:underline"
+            >
+              Order history by date →
+            </Link>
+          )}
       </h2>
       <div className="mb-5">
         <OrderBoard {...boardProps} />
