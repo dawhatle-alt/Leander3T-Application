@@ -197,3 +197,4 @@ Now that the schema is proven under real screens, bring the history across.
 - Supplier portal: supplier logins, order acknowledgment, delivery confirmation
 - Payroll module, if the client ever wants it rebuilt
 - Native mobile wrapper for field photo capture
+- Job archive: move older jobs' files out of the database storage, retrievable for the 10-year warranty window; delete past 10 years only with admin approval. Includes **server-side PDF compression** for plans and front elevations (decided Oct 2026 — images are already compressed in the browser at upload; PDFs upload as-is until this lands)
