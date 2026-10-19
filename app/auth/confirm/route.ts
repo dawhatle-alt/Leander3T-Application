@@ -1,5 +1,6 @@
 import type { EmailOtpType } from "@supabase/supabase-js";
 import { NextResponse, type NextRequest } from "next/server";
+import { logAccess, type AccessMethod } from "@/lib/audit/access";
 import { safeNext } from "@/lib/auth/roles";
 import { createClient } from "@/lib/supabase/server";
 
@@ -15,21 +16,45 @@ export async function GET(request: NextRequest) {
 
   const supabase = await createClient();
   let ok = false;
+  let user: { id: string; email?: string } | null = null;
+  let failure: string | null = null;
 
   if (tokenHash && type) {
-    const { error } = await supabase.auth.verifyOtp({
+    const { data, error } = await supabase.auth.verifyOtp({
       type,
       token_hash: tokenHash,
     });
     ok = !error;
+    user = data.user;
+    failure = error?.code ?? error?.message ?? null;
   } else if (code) {
-    const { error } = await supabase.auth.exchangeCodeForSession(code);
+    const { data, error } = await supabase.auth.exchangeCodeForSession(code);
     ok = !error;
+    user = data.user;
+    failure = error?.code ?? error?.message ?? null;
   }
 
-  if (!ok) {
+  const method: AccessMethod =
+    type === "invite"
+      ? "invite"
+      : type === "recovery"
+        ? "password_reset"
+        : "email_link";
+
+  if (!ok || !user) {
+    await logAccess({
+      event: "sign_in_failed",
+      method,
+      detail: failure ?? "link missing",
+    });
     return NextResponse.redirect(`${origin}/sign-in?error=link`);
   }
+  await logAccess({
+    event: "sign_in",
+    method,
+    userId: user.id,
+    email: user.email,
+  });
 
   // New invitees and password resets choose a password first.
   const destination =

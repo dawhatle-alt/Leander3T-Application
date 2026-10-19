@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
+import { logAccess } from "@/lib/audit/access";
 import { siteOrigin } from "@/lib/auth/origin";
 import { getSessionProfile } from "@/lib/auth/session";
 import { createAdminClient, createClient } from "@/lib/supabase/server";
@@ -34,7 +35,7 @@ export async function inviteConstructionManager(
       error: "Invitations aren't switched on yet: the server key is missing.",
     };
 
-  const admin = createAdminClient();
+  const admin = createAdminClient(me.id);
   const { data, error } = await admin.auth.admin.inviteUserByEmail(email.data, {
     data: { full_name: cm.name },
     redirectTo: `${await siteOrigin()}/auth/confirm?next=/update-password`,
@@ -68,6 +69,14 @@ export async function inviteConstructionManager(
       error: `Invitation sent, but the account wasn't linked. Set ${cm.name} to Builder on the Team page before they sign in.`,
     };
 
+  await logAccess({
+    event: "invited",
+    method: "invite",
+    userId: id,
+    email: email.data,
+    actor: { id: me.id, name: me.fullName },
+    detail: "Builder portal",
+  });
   revalidatePath("/admin/builders");
   revalidatePath("/team");
   return { message: `Portal invitation sent to ${email.data}.` };
