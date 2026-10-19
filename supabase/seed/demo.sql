@@ -106,6 +106,9 @@ with people (slug, full_name, role, builder_slug, phone) as (values
          jsonb_build_object('full_name', full_name),
          now(), now(), '', '', '', ''
   from people
+  -- A demo sign-in that has since become a real account (its demo tag removed,
+  -- e.g. Cindy and Harlee) survives seed:clear; leave it as it is.
+  on conflict (id) do nothing
   returning id, email
 )
 insert into auth.identities (provider_id, user_id, identity_data, provider, last_sign_in_at, created_at, updated_at)
@@ -124,7 +127,9 @@ from (values
   ('luis','(512) 555-0321'),('ramon','(512) 555-0331'),('javier','(512) 555-0332'),('miguel','(512) 555-0333'),
   ('sam','(512) 555-0141')
 ) as v (slug, phone)
-where p.id = md5('l3t-demo:user:' || v.slug)::uuid;
+where p.id = md5('l3t-demo:user:' || v.slug)::uuid
+  and exists (select 1 from auth.users u
+              where u.id = p.id and u.raw_app_meta_data ->> 'demo' = 'true');
 
 -- ---------------------------------------------------------------- crews
 insert into public.crews (id, name, trade, crew_manager_id, demo)

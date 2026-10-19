@@ -128,6 +128,7 @@ This replaces Documint and the email-chain workflow.
 - [x] `/dashboard/board` — Job Board (Kanban by status) for the whole team: New / In Progress / Completed (last 30 days, link to the rest); filters for builder, supervisor, trade and Date Received. Admins and the job's supervisor drag cards (or use "Move to…" on touch screens) to change status — server action `setJobStatus`, checked by row-level security; moving out of Completed clears the completed date; jobs at 100% must have their percent lowered first
 - [x] `/admin/builders` with each builder's construction managers (`/admin/construction-managers` redirects there), `/admin/suppliers` (incl. which order types each supplies), `/admin/crews`, `/admin/colors` (brick and mortar picklists)
 - [x] People management on `/team`: invite, edit name/phone/role/builder link/construction-manager record, order-form reviewer flag, switch access off/on. Admins can't demote or switch off themselves
+- [x] Set a password from the person's Edit dialog on `/team` (Administration; any account but your own). It works once: middleware sends them to choose their own password the next time they sign in (`app_metadata.must_change_password`, server-set only). Everyone can change their own password from Your Profile.
 - [x] `/admin/address-blocks` tracker (Not Ordered / Ordered / Delivered, one-click status, dates stamp in the database) plus the same control on each job page
 - Records are never deleted from admin screens — only switched off, so history keeps pointing at them
 

@@ -2,11 +2,11 @@
 
 import { useEffect, useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { Pencil, X } from "lucide-react";
+import { KeyRound, Pencil, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Notice } from "@/components/auth/form-bits";
 import { ROLES, ROLE_LABEL, type AppRole } from "@/lib/auth/roles";
-import { updatePerson, type PersonInput } from "./actions";
+import { setPersonPassword, updatePerson, type PersonInput } from "./actions";
 
 type Opt = { value: string; label: string };
 
@@ -241,6 +241,7 @@ function PersonDialog({
               </span>
             </label>
           </fieldset>
+          {!isSelf && <SetPassword personId={person.id} />}
         </div>
         <footer className="flex items-center justify-end gap-3 border-t border-mortar px-5 py-3.5">
           <Button
@@ -257,5 +258,103 @@ function PersonDialog({
         </footer>
       </form>
     </dialog>
+  );
+}
+
+// Lives inside the person dialog's form, so it uses a plain button rather than
+// a nested <form>. Saving here doesn't touch the other fields.
+function SetPassword({ personId }: { personId: string }) {
+  const [open, setOpen] = useState(false);
+  const [password, setPassword] = useState("");
+  const [confirm, setConfirm] = useState("");
+  const [result, setResult] = useState<{
+    error?: string;
+    message?: string;
+  } | null>(null);
+  const [pending, start] = useTransition();
+
+  if (!open)
+    return (
+      <div className="mt-4 border-t border-mortar pt-4">
+        <button
+          type="button"
+          onClick={() => setOpen(true)}
+          className="inline-flex items-center gap-1.5 text-[14px] font-bold text-flame"
+        >
+          <KeyRound className="size-4" aria-hidden />
+          Set a password
+        </button>
+      </div>
+    );
+
+  const save = () => {
+    setResult(null);
+    start(async () => {
+      const res = await setPersonPassword({ id: personId, password, confirm });
+      setResult(res);
+      if (!res.error) {
+        setPassword("");
+        setConfirm("");
+      }
+    });
+  };
+
+  return (
+    <div className="mt-4 border-t border-mortar pt-4">
+      <h3 className="mb-1 font-display text-[18px] font-bold uppercase">
+        Set a Password
+      </h3>
+      <p className="mb-3 text-[13px] text-ink-muted">
+        Give them this password yourself. It works once: when they sign in,
+        they&apos;ll be asked to choose their own.
+      </p>
+      {result?.error && <Notice tone="error">{result.error}</Notice>}
+      {result?.message && <Notice tone="ok">{result.message}</Notice>}
+      <fieldset
+        disabled={pending}
+        className="grid gap-x-4 gap-y-3.5 sm:grid-cols-2"
+      >
+        <div>
+          <label htmlFor="p-pw" className="label">
+            New password
+          </label>
+          <input
+            id="p-pw"
+            type="password"
+            autoComplete="new-password"
+            className="input"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
+        </div>
+        <div>
+          <label htmlFor="p-pw2" className="label">
+            Confirm password
+          </label>
+          <input
+            id="p-pw2"
+            type="password"
+            autoComplete="new-password"
+            className="input"
+            value={confirm}
+            onChange={(e) => setConfirm(e.target.value)}
+          />
+        </div>
+      </fieldset>
+      <div className="mt-3 flex items-center gap-3">
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          disabled={pending || !password}
+          onClick={save}
+        >
+          {pending ? "Setting…" : "Set Password"}
+        </Button>
+        <span className="text-[12.5px] text-ink-muted">
+          At least 10 characters.
+        </span>
+      </div>
+    </div>
   );
 }
