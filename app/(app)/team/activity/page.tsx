@@ -97,11 +97,18 @@ export default async function ActivityPage({
     const qs = new URLSearchParams();
     for (const [k, v] of Object.entries(next)) if (v) qs.set(k, v);
     const s = qs.toString();
-    return s ? `/admin/activity?${s}` : "/admin/activity";
+    return s ? `/team/activity?${s}` : "/team/activity";
   };
 
   return (
     <>
+      <div className="mb-3 flex items-center gap-2.5 font-mono text-xs tracking-[0.1em] text-ink-muted uppercase">
+        <Link href="/team" className="font-medium text-flame">
+          Team
+        </Link>
+        <span>/</span>
+        <span>Activity</span>
+      </div>
       <PageHead
         title="Activity"
         sub="Who signed in, and who changed jobs, orders and people. Times are Central."
@@ -137,7 +144,7 @@ export default async function ActivityPage({
       </div>
 
       <form
-        action="/admin/activity"
+        action="/team/activity"
         className="mb-6 flex flex-wrap items-end gap-2.5"
       >
         {view === "signins" && (

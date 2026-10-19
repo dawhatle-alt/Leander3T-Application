@@ -1,5 +1,8 @@
 import type { Metadata } from "next";
+import Link from "next/link";
+import { History } from "lucide-react";
 import { PageHead, Panel } from "@/components/shell/page-bits";
+import { Button } from "@/components/ui/button";
 import { ROLES, ROLE_LABEL, type AppRole } from "@/lib/auth/roles";
 import { requireProfile } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
@@ -76,7 +79,16 @@ export default async function TeamPage() {
             ? "Invite people, set their role and switch access off or on. Switched-off people keep their history."
             : `${people?.length ?? 0} people with access to the Leander 3T job system.`
         }
-      />
+      >
+        {isAdmin && (
+          <Button asChild variant="outline" size="sm">
+            <Link href="/team/activity">
+              <History className="size-4" aria-hidden />
+              Activity
+            </Link>
+          </Button>
+        )}
+      </PageHead>
 
       {me.role === "admin" && (
         <Panel title="Invite Someone" className="mb-[34px]">

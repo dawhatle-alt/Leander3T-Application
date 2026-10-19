@@ -556,7 +556,7 @@ export default async function JobPage({
             History <span className="chalk-line" aria-hidden="true" />
             {history.nextBefore && (
               <Link
-                href={`/admin/activity?job=${id}&period=all`}
+                href={`/team/activity?job=${id}&period=all`}
                 className="count-label text-flame"
               >
                 See all
