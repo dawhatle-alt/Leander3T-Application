@@ -3,7 +3,7 @@
 import { redirect } from "next/navigation";
 import { safeNext } from "@/lib/auth/roles";
 import { siteOrigin } from "@/lib/auth/origin";
-import { createClient } from "@/lib/supabase/server";
+import { createAdminClient, createClient } from "@/lib/supabase/server";
 import {
   emailOnlySchema,
   newPasswordSchema,
@@ -84,7 +84,7 @@ export async function updatePassword(
   if (!parsed.success) return { error: parsed.error.issues[0]?.message };
 
   const supabase = await createClient();
-  const { error } = await supabase.auth.updateUser({
+  const { data, error } = await supabase.auth.updateUser({
     password: parsed.data.password,
   });
   if (error) {
@@ -94,6 +94,19 @@ export async function updatePassword(
           ? "That's your current password. Choose a new one."
           : "Your password couldn't be saved. Open the link from your email again.",
     };
+  }
+
+  // They've replaced a password an administrator set: stop asking.
+  if (data.user?.app_metadata?.must_change_password) {
+    const { error: flagError } =
+      await createAdminClient().auth.admin.updateUserById(data.user.id, {
+        app_metadata: { must_change_password: null },
+      });
+    if (flagError)
+      return {
+        error:
+          "Your new password is saved, but we couldn't finish signing you in. Try again.",
+      };
   }
   redirect("/sign-in");
 }

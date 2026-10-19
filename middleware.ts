@@ -80,6 +80,18 @@ export async function middleware(request: NextRequest) {
     return redirectWithCookies(url, response);
   }
 
+  // An administrator set a temporary password: nothing else opens until the
+  // person chooses their own. Only the server can set this flag.
+  if (
+    user.app_metadata?.must_change_password === true &&
+    pathname !== "/update-password"
+  ) {
+    const url = request.nextUrl.clone();
+    url.pathname = "/update-password";
+    url.search = "?required=1";
+    return redirectWithCookies(url, response);
+  }
+
   const role = profile.role as AppRole;
   if (onSignIn || !canOpen(role, pathname)) {
     const url = request.nextUrl.clone();

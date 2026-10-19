@@ -6,7 +6,11 @@ import { siteOrigin } from "@/lib/auth/origin";
 import { ROLES, ROLE_LABEL, type AppRole } from "@/lib/auth/roles";
 import { getSessionProfile } from "@/lib/auth/session";
 import { createAdminClient, createClient } from "@/lib/supabase/server";
-import { inviteSchema, type FormState } from "@/lib/validation/auth";
+import {
+  inviteSchema,
+  newPasswordSchema,
+  type FormState,
+} from "@/lib/validation/auth";
 
 // Admins invite people by email. Supabase sends the invitation; the link signs
 // them in and asks them to choose a password. Role and builder are set here,
@@ -135,4 +139,54 @@ export async function updatePerson(input: PersonInput): Promise<FormState> {
 
   revalidatePath("/team");
   return { message: `Saved ${p.fullName}.` };
+}
+
+/**
+ * Administration: set someone's password, e.g. for a person whose email can't
+ * receive sign-in links yet. The password is temporary: the next time they
+ * sign in they're sent to choose their own (middleware reads
+ * `must_change_password` from app_metadata, which only the server can set).
+ */
+export async function setPersonPassword(input: {
+  id: string;
+  password: string;
+  confirm: string;
+}): Promise<FormState> {
+  const me = await getSessionProfile();
+  if (me?.role !== "admin")
+    return { error: "Only Administration can set passwords." };
+  if (!z.guid().safeParse(input.id).success) return { error: "Not found." };
+  if (input.id === me.id)
+    return {
+      error: "Change your own password from Your Profile instead.",
+    };
+  const parsed = newPasswordSchema.safeParse({
+    password: input.password,
+    confirm: input.confirm,
+  });
+  if (!parsed.success) return { error: parsed.error.issues[0]?.message };
+  if (!process.env.SUPABASE_SERVICE_ROLE_KEY)
+    return {
+      error: "Passwords can't be set yet: the server key is missing.",
+    };
+
+  const admin = createAdminClient();
+  const { error } = await admin.auth.admin.updateUserById(input.id, {
+    password: parsed.data.password,
+    // An invited person who never opened their email can sign in now.
+    email_confirm: true,
+    app_metadata: { must_change_password: true },
+  });
+  if (error)
+    return {
+      error:
+        error.code === "weak_password"
+          ? "That password is too easy to guess. Try a longer one."
+          : "The password couldn't be set. Try again.",
+    };
+
+  return {
+    message:
+      "Password set. They'll be asked to choose their own the next time they sign in.",
+  };
 }
