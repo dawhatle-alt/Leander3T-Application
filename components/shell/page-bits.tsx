@@ -1,3 +1,5 @@
+import Link from "next/link";
+import { ArrowRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export function PageHead({
@@ -57,15 +59,24 @@ export function Stat({
   label,
   value,
   note,
+  href,
 }: {
   label: string;
   value: React.ReactNode;
   note?: string;
+  /** When set, the whole card opens the list behind the number. */
+  href?: string;
 }) {
-  return (
-    <div className="relative overflow-hidden rounded-md border border-mortar bg-paper px-6 py-[22px] shadow-[0_1px_2px_rgba(33,27,23,.06),0_4px_14px_rgba(33,27,23,.07)] before:absolute before:inset-y-0 before:left-0 before:w-[3px] before:bg-fire">
-      <div className="font-mono text-[11px] tracking-[0.14em] text-ink-muted uppercase">
+  const body = (
+    <>
+      <div className="flex items-center justify-between gap-2 font-mono text-[11px] tracking-[0.14em] text-ink-muted uppercase">
         {label}
+        {href && (
+          <ArrowRight
+            className="size-4 flex-none text-mortar-2 transition-colors group-hover:text-flame"
+            aria-hidden
+          />
+        )}
       </div>
       <div className="mt-2 font-display text-[46px] leading-[1.05] font-bold">
         {value}
@@ -75,7 +86,22 @@ export function Stat({
           {note}
         </div>
       )}
-    </div>
+    </>
+  );
+  const card =
+    "relative overflow-hidden rounded-md border border-mortar bg-paper px-6 py-[22px] shadow-[0_1px_2px_rgba(33,27,23,.06),0_4px_14px_rgba(33,27,23,.07)] before:absolute before:inset-y-0 before:left-0 before:w-[3px] before:bg-fire";
+  return href ? (
+    <Link
+      href={href}
+      className={cn(
+        card,
+        "group block transition-colors hover:border-flame focus-visible:border-flame focus-visible:outline-none",
+      )}
+    >
+      {body}
+    </Link>
+  ) : (
+    <div className={card}>{body}</div>
   );
 }
 

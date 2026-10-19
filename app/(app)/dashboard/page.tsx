@@ -226,20 +226,37 @@ export default async function DashboardPage() {
       </PageHead>
 
       <div className="mb-[34px] grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
-        <Stat label="Active Jobs" value={active} note="In progress" />
-        <Stat label="New Job Requests" value={fresh} note="Not started" />
+        <Stat
+          label="Active Jobs"
+          value={active}
+          note="In progress"
+          href="/jobs?status=in_progress"
+        />
+        <Stat
+          label="New Job Requests"
+          value={fresh}
+          note="Not started"
+          href="/jobs?status=new"
+        />
         {office ? (
           <Stat
             label="Orders Pending Review"
             value={forms.length}
+            href="/orders/forms"
             note={`${crewRequests.length} crew ${crewRequests.length === 1 ? "request" : "requests"} waiting`}
           />
         ) : (
-          <Stat label="My Assigned Jobs" value={active + fresh} note="Open" />
+          <Stat
+            label="My Assigned Jobs"
+            value={active + fresh}
+            note="Open"
+            href="/jobs?mine=1"
+          />
         )}
         <Stat
           label="Homes Completed"
           value={completed.toLocaleString()}
+          href="/jobs?status=completed"
           note="On record"
         />
       </div>
