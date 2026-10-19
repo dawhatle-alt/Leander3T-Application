@@ -141,35 +141,70 @@ export async function loadJobOrders(jobId: string): Promise<OrderRow[]> {
   return results.flat();
 }
 
-/** Orders across jobs for the office view. */
+const soonestDelivery = (a: OrderRow, b: OrderRow) =>
+  (a.requestedDate ?? "9999").localeCompare(b.requestedDate ?? "9999");
+const newestOrdered = (a: OrderRow, b: OrderRow) =>
+  (b.orderedDate ?? "").localeCompare(a.orderedDate ?? "");
+
+/**
+ * Orders across jobs for the office view. With `jobId`, every order ever
+ * placed for that one address (the date window doesn't apply).
+ */
 export async function loadOrders(filter: {
-  status: "pending" | "ordered";
+  status: "pending" | "ordered" | "all";
   type?: OrderTypeKey;
   supplierId?: string;
   since?: string;
+  jobId?: string;
 }): Promise<OrderRow[]> {
   const supabase = await createClient();
   const types = filter.type ? [filter.type] : ORDER_TYPE_LIST.map((d) => d.key);
   const results = await Promise.all(
     types.map(async (type) => {
-      let q = table(supabase, type)
-        .select(selectFor(type, true))
-        .eq("ordered", filter.status === "ordered");
+      let q = table(supabase, type).select(selectFor(type, true));
+      if (filter.status !== "all")
+        q = q.eq("ordered", filter.status === "ordered");
+      if (filter.jobId) q = q.eq("job_id", filter.jobId);
       if (filter.supplierId) q = q.eq("supplier_id", filter.supplierId);
-      if (filter.status === "ordered" && filter.since)
+      if (filter.status === "ordered" && filter.since && !filter.jobId)
         q = q.gte("ordered_date", filter.since);
       const { data } = await q.limit(300);
       return ((data ?? []) as Row[]).map((o) => toRow(type, o));
     }),
   );
   const rows = results.flat();
-  return filter.status === "pending"
-    ? rows.sort((a, b) =>
-        (a.requestedDate ?? "9999").localeCompare(b.requestedDate ?? "9999"),
-      )
-    : rows.sort((a, b) =>
-        (b.orderedDate ?? "").localeCompare(a.orderedDate ?? ""),
-      );
+  if (filter.status === "pending") return rows.sort(soonestDelivery);
+  if (filter.status === "ordered") return rows.sort(newestOrdered);
+  // Whole history for an address: drafts still to place on top, then placed
+  // orders newest first.
+  return [
+    ...rows.filter((o) => !o.ordered).sort(soonestDelivery),
+    ...rows.filter((o) => o.ordered).sort(newestOrdered),
+  ];
+}
+
+export type OrderJob = {
+  id: string;
+  address: string;
+  subdivision: string | null;
+  builder: string | null;
+};
+
+/** The job behind an address filter on the Orders page; null if not visible. */
+export async function loadOrderJob(jobId: string): Promise<OrderJob | null> {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("jobs")
+    .select("id, property_address, subdivision, builders(name)")
+    .eq("id", jobId)
+    .maybeSingle();
+  if (!data) return null;
+  return {
+    id: data.id,
+    address: data.property_address ?? "(no address)",
+    subdivision: data.subdivision,
+    builder: data.builders?.name ?? null,
+  };
 }
 
 export async function loadOrderOptions(): Promise<OrderOptions> {
