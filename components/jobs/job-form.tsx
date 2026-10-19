@@ -8,6 +8,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
 import { Notice } from "@/components/auth/form-bits";
 import { saveJob } from "@/app/(app)/jobs/save-job";
+import { NewJobFiles, type PendingFile } from "./new-job-files";
+import { uploadDocuments } from "@/lib/jobs/upload-documents";
 import type { JobFormOptions, Option } from "@/lib/jobs/options";
 import {
   jobSchema,
@@ -56,6 +58,8 @@ export function JobForm({
   const router = useRouter();
   const [pending, start] = useTransition();
   const [formError, setFormError] = useState<string | null>(null);
+  const [files, setFiles] = useState<PendingFile[]>([]);
+  const [progress, setProgress] = useState<string | null>(null);
 
   const form = useForm<JobFormInput, unknown, JobFormOutput>({
     resolver: zodResolver(jobSchema),
@@ -103,7 +107,19 @@ export function JobForm({
         window.scrollTo({ top: 0, behavior: "smooth" });
         return;
       }
-      router.push(`/jobs/${res.id}`);
+      // New job: now that it exists, upload the elevation and plans to it.
+      // The job stays created even if a file fails; the job page says so.
+      let failed = 0;
+      if (!jobId && res.id && files.length) {
+        const up = await uploadDocuments(
+          res.id,
+          files.map(({ file, kind }) => ({ file, kind })),
+          (n, total) => setProgress(`Uploading file ${n} of ${total}…`),
+        );
+        failed = up.failed;
+        setProgress(null);
+      }
+      router.push(`/jobs/${res.id}${failed ? `?files_failed=${failed}` : ""}`);
       router.refresh();
     });
   });
@@ -291,6 +307,10 @@ export function JobForm({
         },
         { name: "area_directions", label: "Directions", kind: "textarea" },
       ])}
+
+      {!jobId && (
+        <NewJobFiles files={files} onChange={setFiles} disabled={pending} />
+      )}
 
       <section className="overflow-hidden rounded-md border border-mortar bg-paper shadow-card">
         <header className="border-b border-mortar px-6 py-4">
@@ -523,7 +543,11 @@ export function JobForm({
           <Link href={jobId ? `/jobs/${jobId}` : "/jobs"}>Cancel</Link>
         </Button>
         <Button type="submit" variant="fire" size="sm" disabled={pending}>
-          {pending ? "Saving…" : jobId ? "Save Changes" : "Create Job"}
+          {pending
+            ? (progress ?? "Saving…")
+            : jobId
+              ? "Save Changes"
+              : "Create Job"}
         </Button>
       </div>
     </form>

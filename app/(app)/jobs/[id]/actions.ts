@@ -132,30 +132,36 @@ const docSchema = z.object({
   kind: z.enum(["plans", "front_elevation", "color_selection", "other"]),
 });
 
-export async function recordDocument(
-  input: z.input<typeof docSchema>,
+/** Record documents already uploaded to the "plans" bucket by the browser. */
+export async function recordDocuments(
+  items: z.input<typeof docSchema>[],
 ): Promise<{ error?: string }> {
-  const parsed = docSchema.safeParse(input);
+  const parsed = z.array(docSchema).min(1).max(40).safeParse(items);
+  const jobId = parsed.success ? parsed.data[0].jobId : null;
   if (
     !parsed.success ||
-    !parsed.data.path.startsWith(`${parsed.data.jobId}/`)
+    parsed.data.some(
+      (d) => d.jobId !== jobId || !d.path.startsWith(`${d.jobId}/`),
+    )
   ) {
-    return { error: "That file couldn't be saved." };
+    return { error: "Those files couldn't be saved." };
   }
   const { me, supabase } = await session();
-  const d = parsed.data;
-  const { error } = await supabase.from("job_documents").insert({
-    job_id: d.jobId,
-    kind: d.kind,
-    storage_path: d.path,
-    file_name: d.fileName,
-    uploaded_by: me.id,
-  });
+  const { error } = await supabase.from("job_documents").insert(
+    parsed.data.map((d) => ({
+      job_id: d.jobId,
+      kind: d.kind,
+      storage_path: d.path,
+      file_name: d.fileName,
+      uploaded_by: me.id,
+    })),
+  );
   if (error) {
-    await supabase.storage.from("plans").remove([d.path]);
-    return { error: "That file couldn't be saved." };
+    // Don't leave orphaned files behind.
+    await supabase.storage.from("plans").remove(parsed.data.map((d) => d.path));
+    return { error: "Those files couldn't be saved." };
   }
-  revalidatePath(pathFor(d.jobId));
+  revalidatePath(pathFor(jobId!));
   return {};
 }
 

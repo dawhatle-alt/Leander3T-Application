@@ -4,60 +4,69 @@ import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Upload } from "lucide-react";
 import { Notice } from "@/components/auth/form-bits";
-import { deleteDocument, recordDocument } from "@/app/(app)/jobs/[id]/actions";
-import { createClient } from "@/lib/supabase/client";
+import { deleteDocument } from "@/app/(app)/jobs/[id]/actions";
+import {
+  DOC_ACCEPT,
+  checkDocument,
+  uploadDocuments,
+  type UploadKind,
+} from "@/lib/jobs/upload-documents";
 import { ConfirmButton } from "./confirm-button";
 
-type Kind = "plans" | "front_elevation" | "color_selection" | "other";
-
-const ACCEPT = "application/pdf,image/jpeg,image/png,image/webp";
-const MAX_BYTES = 50 * 1024 * 1024;
-
 // Plans and other job documents go to the private "plans" bucket. Job
-// editors (admins and the job's supervisors) can add them.
+// editors (admins and the job's supervisors) can add them. Images are
+// compressed on the device before upload.
 export function DocumentUploader({ jobId }: { jobId: string }) {
   const router = useRouter();
   const input = useRef<HTMLInputElement>(null);
-  const [kind, setKind] = useState<Kind>("plans");
-  const [busy, setBusy] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [kind, setKind] = useState<UploadKind>("plans");
+  const [busy, setBusy] = useState<string | null>(null);
+  const [result, setResult] = useState<{
+    tone: "ok" | "error";
+    text: string;
+  } | null>(null);
 
-  async function upload(file: File | undefined) {
-    if (!file) return;
-    setError(null);
-    if (file.size > MAX_BYTES) {
-      setError("That file is over 50 MB.");
+  async function upload(files: FileList | null) {
+    if (!files?.length) return;
+    setResult(null);
+    const list = [...files].slice(0, 40);
+    const bad = list.filter((f) => checkDocument(f));
+    const good = list.filter((f) => !checkDocument(f));
+    if (!good.length) {
+      setResult({
+        tone: "error",
+        text: "Only PDF, JPG and PNG files up to 50 MB can be added.",
+      });
+      if (input.current) input.current.value = "";
       return;
     }
-    setBusy(true);
-    const safe =
-      file.name
-        .replace(/[^\w.\- ]+/g, "")
-        .replace(/\s+/g, "-")
-        .slice(-80) || "file";
-    const path = `${jobId}/${crypto.randomUUID()}-${safe}`;
-    const { error: upErr } = await createClient()
-      .storage.from("plans")
-      .upload(path, file, {
-        contentType: file.type || undefined,
-        upsert: false,
-      });
-    const res = upErr
-      ? {
-          error: "That file couldn't be uploaded. Plans must be PDF or images.",
-        }
-      : await recordDocument({ jobId, path, fileName: file.name, kind });
-    setBusy(false);
+    const res = await uploadDocuments(
+      jobId,
+      good.map((file) => ({ file, kind })),
+      (n, total) => setBusy(`Uploading ${n} of ${total}…`),
+    );
+    setBusy(null);
     if (input.current) input.current.value = "";
-    if (res.error) {
-      if (!upErr) await createClient().storage.from("plans").remove([path]);
-      setError(res.error);
-    } else router.refresh();
+    const failed = res.failed + bad.length;
+    if (res.saved) router.refresh();
+    setResult(
+      failed
+        ? {
+            tone: "error",
+            text: res.saved
+              ? `${res.saved} added. ${failed} couldn't be added (PDF, JPG or PNG up to 50 MB).`
+              : "Those files couldn't be uploaded. Plans must be PDF, JPG or PNG.",
+          }
+        : {
+            tone: "ok",
+            text: `${res.saved} file${res.saved === 1 ? "" : "s"} added.`,
+          },
+    );
   }
 
   return (
     <div className="border-t border-mortar px-5 py-4">
-      {error && <Notice tone="error">{error}</Notice>}
+      {result && <Notice tone={result.tone}>{result.text}</Notice>}
       <div className="flex flex-wrap items-center gap-3">
         <label htmlFor="doc-kind" className="sr-only">
           Document type
@@ -66,7 +75,7 @@ export function DocumentUploader({ jobId }: { jobId: string }) {
           id="doc-kind"
           className="input w-auto py-2"
           value={kind}
-          onChange={(e) => setKind(e.target.value as Kind)}
+          onChange={(e) => setKind(e.target.value as UploadKind)}
         >
           <option value="plans">Plans</option>
           <option value="front_elevation">Front elevation</option>
@@ -75,13 +84,14 @@ export function DocumentUploader({ jobId }: { jobId: string }) {
         </select>
         <label className="inline-flex cursor-pointer items-center gap-2 rounded-sm bg-charcoal px-4 py-2 text-[13.5px] font-bold text-limestone has-[:disabled]:pointer-events-none has-[:disabled]:opacity-60">
           <Upload className="size-4" aria-hidden />
-          {busy ? "Uploading…" : "Upload File"}
+          {busy ?? "Upload Files"}
           <input
             ref={input}
             type="file"
-            accept={ACCEPT}
-            disabled={busy}
-            onChange={(e) => upload(e.target.files?.[0])}
+            accept={DOC_ACCEPT}
+            multiple
+            disabled={!!busy}
+            onChange={(e) => upload(e.target.files)}
             className="sr-only"
           />
         </label>
