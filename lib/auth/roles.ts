@@ -40,6 +40,8 @@ const AREAS: { prefix: string; roles: AppRole[] }[] = [
   { prefix: "/dashboard", roles: TEAM },
   { prefix: "/jobs", roles: TEAM },
   { prefix: "/orders", roles: TEAM },
+  // Must come before /team: the first matching prefix wins.
+  { prefix: "/team/activity", roles: ["admin"] },
   { prefix: "/team", roles: TEAM },
   { prefix: "/crew", roles: ["crew_manager"] },
   // Admins may open the portal to preview what a builder sees.
