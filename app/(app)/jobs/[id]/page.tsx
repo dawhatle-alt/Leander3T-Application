@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Notice } from "@/components/auth/form-bits";
 import { NoteForm, DeleteNoteButton } from "@/components/jobs/notes";
 import { PhotoGallery } from "@/components/jobs/photo-gallery";
 import { PhotoUploader } from "@/components/jobs/photo-uploader";
@@ -62,10 +63,13 @@ const DOC_KIND: Record<string, string> = {
 
 export default async function JobPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ id: string }>;
+  searchParams: Promise<{ files_failed?: string }>;
 }) {
   const { id } = await params;
+  const filesFailed = Number((await searchParams).files_failed) || 0;
   if (!/^[0-9a-f-]{36}$/i.test(id)) notFound();
   const me = await requireProfile();
   const supabase = await createClient();
@@ -476,6 +480,13 @@ export default async function JobPage({
           <h2 className="section-title">
             Plans & Documents <span className="chalk-line" aria-hidden="true" />
           </h2>
+          {filesFailed > 0 && (
+            <Notice tone="error">
+              The job was created, but {filesFailed} file
+              {filesFailed === 1 ? "" : "s"} didn&apos;t upload. Add{" "}
+              {filesFailed === 1 ? "it" : "them"} below.
+            </Notice>
+          )}
           <div className="rounded-md border border-mortar bg-paper shadow-card">
             {docs.length ? (
               <ul>
